@@ -5,5 +5,5 @@
 node_modules/
 
 # CDN images
-cdn/media/
-cdn/profile_images/
+cdn/media/*
+cdn/profile_images/*
