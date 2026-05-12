@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Document{% endblock %}</title>
+    <link rel="stylesheet" href="/css/shared.css">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block head %}{% endblock %} {# Placeholder for page-specific CSS/Meta #}
+</head>
+<body>
+    
+    <!-- Main Display -->
+    <main>
+        {% block content %}{% endblock %} {# This is where your page content goes #}
+    </main> 
+
+    <section class="desktop-view mini_profile">
+        <a href="/" style="text-align: center;">sitename</a><br><br>
+
+        <div style="text-align: left;">
+            {% if user and user.id %}
+                <div>
+                    <a class="profile_link" href="/u/{{ user.username }}"><img src="{{ ('/cdn/profile_images/' + user.profile_pic) if user.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}"> {{ user.username }}</a>
+
+                    
+                    <a class="nav-button" href="/chat"> Messages </a>
+                    <a class="nav-button" href="/bookmarks"> Bookmarks </a>
+                    <a class="nav-button" href="/notifications"> Notifications </a>
+
+                    <button onclick="window.location = '/settings'" class="logout" type="submit">
+                        Settings
+                    </button>
+                    
+                    <form action="/api/logout" method="POST" style="display: inline;">
+                        <button class="logout" type="submit">
+                            Log Out
+                        </button>
+                    </form>
+            {% else %}
+                <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                    <button onclick="window.location = '/login';">login</button>
+                    <button onclick="window.location = '/register';">sign up</button>
+            {% endif %}
+                </div>
+        </div>
+    </section>
+
+    <section class="rightside desktop-view">
+        rightside
+    </section>
+
+    <script src="/js/shared.js"></script>
+    {% block script %}{% endblock %} {# Placeholder for page-specific JS #}
+</body>
+</html>

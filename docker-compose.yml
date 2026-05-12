@@ -1,0 +1,24 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      # These use the values from .env file
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      # Runs schema.sql on startup
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      # This keeps data alive even if the container restarts
+      - mysql_data:/var/lib/mysql
+
+  app:
+    build: .
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db 
+
+volumes:
+  mysql_data:

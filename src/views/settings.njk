@@ -1,0 +1,56 @@
+{% extends "base.njk" %}
+
+{% block head %}
+    <link rel="stylesheet" href="/css/settings.css">
+{% endblock %}
+
+{% block content %}
+    <div id="settings-container">
+        <img style="float: left" class="large_pfp" src="{{ ('/cdn/profile_images/' + user.profile_pic) if user.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
+
+            
+        <!-- {{ profile.about | default('This user has yet to tell about themselves', true) }}  -->
+        
+        <table style="float: left;">
+            <tr>
+                <td>Username </td>
+                <td><input id="username" type="text" autocomplete="off" value="{{ user.username }}"></td>
+            </tr>
+            <!-- <tr>
+                <td>Display Name =</td>
+                <td><input disabled value="{{ credentials.displayname }}"> </td>
+            </tr> -->
+            <tr>
+                <td>Email </td>
+                <td><input id="email" type="email" autocomplete="off" value="{{ credentials.email }}"> </td>
+            </tr>
+            <!-- <tr>
+                <td>About =</td>
+                <td><input disabled value="{{ credentials.about }}"> </td>
+            </tr> -->
+            
+        </table>
+        <br><br>
+        <button id="confirm_button" autocomplete="off" disabled style="float: left; margin-top: 20px;">Update Settings</button>
+        <button autocomplete="off" style="float: left; margin-left: 10px; margin-top: 20px;">Delete Account</button>
+    </div>
+
+    <script>
+        const username = document.getElementById("username");
+        const email = document.getElementById("email");
+
+        const confirmButton = document.getElementById("confirm_button");
+
+        
+        username.oninput = function(){
+            confirmButton.disabled = false;
+            username.oninput = null;
+        };
+        
+        email.oninput = function(){
+            confirmButton.disabled = false;
+            email.oninput = null;
+        };
+    </script>
+    
+{% endblock %}

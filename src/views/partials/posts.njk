@@ -1,0 +1,407 @@
+{# Header #}
+{% set _header %}
+    <link rel="stylesheet" href="/css/posts.css">
+
+    {% if process.env.NODE_ENV == 'development' %}
+        <script type="module" src="/js/video-bundle.js"></script>
+    {% else %}
+        <script type="module" src="/dist/video-bundle.js"></script>
+    {% endif %}
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/html/cdn/video.css"> -->
+    <link rel="stylesheet" href="/css/video-minimal-skin.css">
+
+{% endset %}
+
+
+{# Define DOM per unique displayType #}
+{% macro _dom(feedType = "all") %}
+    <div class="posts" data-feed="{{ feedType }}" id="posts"></div>
+    <div class="sentinel" data-feed="{{ feedType }}">Intersection Observer</div>
+
+    {% if feedType == "detailed" %}
+        <div id="commentsContainer">
+            <hr><br>
+            {% include "partials/postmaker.njk" %}
+
+            <div class="posts" data-feed="comments" id="posts"></div>
+            <div class="sentinel" data-feed="comments">Intersection Observer</div>        
+        </div>
+    {% endif %}
+{% endmacro %}
+
+
+{# Shared code #}
+{% macro _script(data = {}) %}
+<script src="/js/video-maker.js"></script>
+<script>
+        function genPostForm(){
+            const formElem = document.createElement("form");
+            formElem.method = "POST";
+
+            formElem.style.display = "inline-block";
+
+            return formElem;
+        }
+
+        function genPostIData(){
+            const inputElem = document.createElement("input");
+            inputElem.name = "post_id";
+            inputElem.required = true;
+            inputElem.type = "hidden";
+
+            return inputElem;
+        }
+
+        function genPostButton(){
+            const buttonElem = document.createElement("button");
+            buttonElem.type = "submit";
+
+            buttonElem.style.cursor = "pointer";
+
+            return buttonElem;
+        }
+
+        function createPostElement(data, feed_container){
+            
+            const buttonContainer = document.createElement("div");
+            buttonContainer.classList.add("postContainer")
+
+            buttonContainer.setAttribute("post-id", data.post_id)
+
+            const divContainer = document.createElement("div");
+            divContainer.classList.add("post")
+
+            const userAvatar = document.createElement("img");
+            userAvatar.src = data.profile_pic;
+            userAvatar.classList.add("inline-pfp")
+
+            const usernameLink = document.createElement("a");
+            usernameLink.href = `/u/${data.username}`;
+            usernameLink.appendChild(userAvatar);
+            usernameLink.appendChild(document.createTextNode(data.username));
+            usernameLink.style.float = "left";
+
+            const postDate = document.createElement("span");
+            postDate.style.float = "right";
+
+            const postDateSmall = document.createElement("small");
+            postDateSmall.textContent = new Date(data.publish_date).toLocaleString();        
+
+            const gallery = document.createElement("div");
+            gallery.id = "gallery";
+            for (const m of JSON.parse(data.media || "[]")){
+
+                let media_dom;
+                
+                if (m.split(".")[1] == "mp4" ){
+                    media_dom = document.createElement("video-player");
+
+                    media_dom.innerHTML = inlineVideoPlayer(m);
+                }else{
+                    media_dom = document.createElement("img");
+                    media_dom.src = `/cdn/media/${m}`;
+                }
+
+                gallery.appendChild(media_dom);
+            };
+            
+            const postContent = document.createElement("span")
+            postContent.textContent = data.content;            
+
+            // Add onclick event when its not detailed view
+            // Parses int if there's a data.post_id
+            if (feed_container.getAttribute('data-feed') != "detailed"){
+                // Prevent middle click from activating scroll toggle
+                buttonContainer.addEventListener("pointerdown", (e) => { if (e.button === 1) { e.preventDefault(); e.stopPropagation() } });
+
+                // Relocate to post page on pointerup
+                buttonContainer.addEventListener("pointerup", (e) => {
+
+                    // Only accept left or middle  mouse button
+                    if (![0, 1].includes(e.button)) return; 
+
+                    // Also don't run if its clicking the media or a button
+                    const shouldIgnore = e.target.closest('media-container, button');
+                    if (shouldIgnore) return;
+
+                    // Don't if there's selection
+                    const sel = window.getSelection();
+                    const text = sel ? sel.toString().trim() : "";
+                    const hasSelectionInside = text && sel.rangeCount > 0 && buttonContainer.contains(sel.anchorNode) && buttonContainer.contains(sel.focusNode);
+                    if (hasSelectionInside) {console.log('selection'); return};
+
+                    const new_url =  `/u/${data.username}/post/${data.post_id}`;
+
+                    // If middle click open in new tab
+                    if (e.button === 1) { e.preventDefault(); e.stopPropagation(); window.open(new_url, '_blank', 'noopener') }
+                    // If m1 change url
+                    else{ window.location.href = new_url };
+                });
+            }else {
+                // When its detailed view
+                buttonContainer.style.cursor = "default";
+                buttonContainer.classList.add("detailed-view") 
+                postContent.style.cursor = "text";
+            }
+
+            postDate.appendChild(postDateSmall);
+
+            const topContainer = document.createElement("div");
+            topContainer.style.height = "auto";
+            topContainer.style.overflow = "scroll";
+            topContainer.appendChild(usernameLink);
+            topContainer.appendChild(postDate);
+            topContainer.appendChild(document.createElement("br"));
+
+            
+            if ("{{ data.user_id }}" == data.author_id && feed_container.getAttribute('data-feed') == "detailed"){
+                const  deleteButton = genPostButton();
+
+                deleteButton.onclick = async function(){
+                    const result = await jsonQuery('/api/delete-post', JSON.stringify({"post_id": data.post_id}));
+                    if (result?.ok == true){ 
+                        history.back();
+                    };  
+                };
+
+                deleteButton.style.float = "right";
+
+                
+
+                deleteButton.innerText = "Delete Post";
+                deleteButton.classList.add("deleteButton");
+
+                topContainer.appendChild(deleteButton);
+            }
+
+            divContainer.appendChild(topContainer);
+
+            // Like
+            const  likeButton = genPostButton();
+            if (data.is_liked)
+                likeButton.classList.add('isLiked');
+            likeButton.onclick = async function(){ 
+                let result = await jsonQuery('/api/like-post', JSON.stringify({"post_id": data.post_id}));
+                // If anything were to go wrong with the query then return
+                if (!result?.ok == true){ return }
+                
+                likeButton.classList.toggle('isLiked');
+
+                const count = parseInt(likeButton.innerText.match(/\d+/)?.[0] || "0", 10);
+                
+                let isLiked = !likeButton.classList.contains('isLiked');
+                const newCount = isLiked ? count - 1 : count + 1;
+                likeButton.innerText = `Like ${newCount}`;
+            };
+            likeButton.innerText = `Like ${data.like_count}`;
+            // 
+
+            // Repost
+            const  repostForm = genPostForm(); 
+            const  repostData = genPostIData(); 
+            const  repostButton = genPostButton();
+            repostForm.action = "/api/repost-post"; 
+            repostData.value = data.post_id; 
+            repostButton.innerText = "Repost"
+            repostForm.appendChild(repostData); 
+            repostForm.appendChild(repostButton);
+            // 
+
+            // Reply
+            const  replyButton = genPostButton();
+            replyButton.innerText = `Reply ${data.comment_count}`;
+            if (!parseInt("{{ data.post_id }}")){
+                replyButton.onclick = function(e) {
+                    // Only accept left  mouse button
+                    if (e.button != 0) return; 
+                    const new_url =  `/u/${data.username}/post/${data.post_id}`;
+                    window.location.href = new_url;
+                };
+            };
+            
+            // 
+
+            // Bookmark
+            const  bookmarkButton = genPostButton();
+            bookmarkButton.onclick = function(){ jsonQuery('/api/bookmark-post', JSON.stringify({"post_id": data.post_id})) };
+            bookmarkButton.innerText = "Bookmark";
+            //
+
+            if (postContent.textContent)
+                divContainer.appendChild(postContent);
+            
+            if (JSON.parse(data.media || "[]").length)
+                divContainer.appendChild(gallery);
+
+            // Action buttons
+            const action_buttons = document.createElement("div");
+            action_buttons.classList.add("action-buttons")
+            action_buttons.appendChild(likeButton);
+            action_buttons.appendChild(replyButton);
+            action_buttons.appendChild(repostForm);
+            action_buttons.appendChild(bookmarkButton);
+            
+            divContainer.appendChild(action_buttons);
+
+            // Final
+            buttonContainer.appendChild(divContainer);
+
+            return buttonContainer;
+        }
+    </script>
+    <script>
+        async function loadPosts(feed_container, posts = []){
+            posts.forEach(post => {
+                // If it doesn't exist stop trying to make it exist
+                if (!post) return;
+                if (post?.profile_pic)
+                    post.profile_pic = '/cdn/profile_images/'+post.profile_pic
+                else
+                    post.profile_pic = '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg';
+                
+                feed_container.appendChild(createPostElement(post, feed_container));
+            });
+        };
+
+        async function fetchPosts(feed_type, last_post_id = null){
+            let response;
+            const postID = "{{ data.post_id }}" || null;
+            
+            const profileUsername = '{{ data.profile_username }}' || null;
+            
+            const formData = {
+                "last_post_id": last_post_id,
+                "post_id": postID,
+                "author_name": profileUsername,
+                "page_type": feed_type
+            };
+
+            
+            try{
+                response = await fetch('/api/get-posts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) throw new Error('Network error');
+
+                return response;
+            }catch (error) {
+                console.error('Error fetching posts:', error);
+            }
+            
+
+            return response;
+        };
+
+        // Assemble and run everything
+
+        async function loadNewPosts(sentinelDOM){
+            // Determine the type of the feed, either "all", "following", "likes" or "bookmarks"
+            const feed_type = sentinelDOM.getAttribute('data-feed');
+
+            // Get the appropiate container for the feed
+            const feed_container = document.querySelector(`.posts[data-feed="${feed_type}"]`);
+            const page_type = feed_container?.getAttribute('data-page');
+
+            let last_post_id = feed_container?.lastElementChild?.getAttribute('post-id') || null;
+
+            const response = await fetchPosts(feed_type, last_post_id);
+
+            const posts = await response?.json();
+
+            if (feed_type == "detailed" && !posts?.length){
+                console.log('noposts')
+                observer.unobserve(sentinelDOM);
+                sentinelDOM.remove();
+                observer.disconnect();
+                document.getElementById('commentsContainer')?.remove();
+
+                let text_paragraph = document.createElement("p");
+                text_paragraph.style.textAlign = "center";
+
+                text_paragraph.innerText = "Post not found";    
+
+                feed_container?.appendChild(document.createElement('br'));
+                feed_container?.appendChild(document.createElement('br'));
+                feed_container?.appendChild(text_paragraph);
+
+                return;
+            };
+            
+            
+
+            // If server returns less than 10 posts there isn't any posts left to display
+            if (posts?.length) await loadPosts(feed_container, posts);;
+            if (posts?.length < 10 || !posts?.length ) {
+                
+
+                // Disposal
+                observer.unobserve(sentinelDOM);
+                sentinelDOM.remove();
+                if (!document.querySelector('.sentinel')) observer.disconnect();
+
+                let text_paragraph = document.createElement("p");
+                text_paragraph.style.textAlign = "center";
+
+                
+                if (feed_type == "following" && feed_container.childElementCount == 0){
+                    text_paragraph.innerText = "You're not following anyone.";    
+                } 
+                else{
+                    text_paragraph.innerText = "You've reached the end.";
+                }
+                
+                // Don't add if feed type is detailed or comments.
+                if (!["detailed"].includes(feed_type)){
+                    feed_container?.appendChild(document.createElement('br'));
+                    feed_container?.appendChild(document.createElement('br'));
+                    feed_container?.appendChild(text_paragraph);
+                }
+                
+                return;
+            };
+            
+
+        }
+
+        const observerLoading = new WeakMap();
+        const observer = new IntersectionObserver(async (entries) => {
+            for (const entry of entries){
+                if (!entry.isIntersecting || observerLoading.get(entry.target)) continue;
+
+                observerLoading.set(entry.target, true);
+                observer.unobserve(entry.target);
+
+                // Run the logic required to fetch and display new posts
+                await loadNewPosts(entry.target);
+                
+                observer.observe(entry.target);
+                observerLoading.set(entry.target, false);
+            };
+        }, {
+            threshold: 0.0
+        });
+
+        async function initWindow(){
+            document.querySelectorAll('.sentinel').forEach((el) => {
+                observerLoading.set(el, false);
+                observer.observe(el);
+            });
+        }
+
+
+
+        // Call fetchPosts when the page loads
+        window.onload = initWindow;
+    </script>
+{% endmacro %}
+
+
+{# Export self as object #}
+{% set posts = {
+    style: _header,
+    dom: _dom,
+    script: _script
+} %}

@@ -1,0 +1,26 @@
+#feedToggle{
+    display: grid; 
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 30px;
+}
+
+#feedToggle > button{
+    height: 30px;
+    border-radius: 10px;
+
+    border: none;
+    background: none;
+    
+}
+
+#feedToggle > button.active{
+    background-color: #007bff;
+    
+    color:white;
+    
+}
+
+#feedToggle > button:hover{
+    background-color: #0061c9;
+    color: white;
+}

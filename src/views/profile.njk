@@ -1,0 +1,136 @@
+{% extends "base.njk" %}
+
+{% from "partials/posts.njk" import posts %}
+
+{% block head %}
+    <link rel="stylesheet" href="/css/profile.css">
+
+    {{ posts.style | safe }}
+{% endblock %}
+
+{% block content %}
+    {% if profile %}
+        {% if profile.user_id == user.id %}
+            <div class="pfp_container">
+                <img class="large_pfp" src="{{ ('/cdn/profile_images/' + profile.profile_pic) if profile.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
+                <button id="updatePFP">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="52" height="52" viewBox="0 0 64 64">
+                        <path fill="white" d="M49,13c3.314,0,6,2.686,6,6v26c0,3.314-2.686,6-6,6H15c-3.314,0-6-2.686-6-6V19c0-3.314,2.686-6,6-6H49z M23,23	c-2.209,0-4,1.791-4,4c0,2.209,1.791,4,4,4c2.209,0,4-1.791,4-4C27,24.791,25.209,23,23,23z M51,45v-3.566l-9.319-8.38	c-1.524-1.37-3.836-1.367-5.356,0.006l-7.922,7.158l-3.793-3.244c-1.501-1.284-3.714-1.28-5.211,0.009L13,42.496V45	c0,1.105,0.895,2,2,2h34C50.104,47,51,46.105,51,45z"></path>
+                    </svg>
+                </button>
+            </div>
+            
+        {% else %}
+            <div class="pfp_container">
+                <img class="large_pfp" src="{{ ('/cdn/profile_images/' + profile.profile_pic) if profile.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
+            </div>
+            
+        {% endif %}
+        
+        <br>
+        <h2>{{ profile.username }}</h2>
+        
+        {{ profile.about | default('This user has yet to tell about themselves', true) }} 
+    
+        <br><br>
+        <a class="follow-indicator" href="/u/{{ profile.username}}/following">X <span>Following</span></a> <a class="follow-indicator" href="/u/{{ profile.username}}/followers">X <span>Followers</span></a>
+
+        {% if profile.user_id == user.id %}
+            <br><br>
+            <button onclick="window.location = '/settings'" class="logout" type="submit">
+                Edit Profile
+            </button>
+            <button onclick="window.location = '/settings'" class="logout" type="submit">
+                Settings
+            </button>
+            
+        {% endif %}
+
+        {% if profile.user_id != user.id %}
+            <br><br><button>Follow</button> <button>Message</button>
+        {% endif %}
+
+        
+        <br><br><hr><br>
+
+        <div id="feedToggle" class="tab">
+            <button class="tablinks active-tab" onclick="toggleTab(event, 'posts-tab')">Posts</button>
+            <button class="tablinks" onclick="toggleTab(event, 'replies-tab')">Replies</button>
+            {% if profile.user_id == user.id %} <button class="tablinks" onclick="toggleTab(event, 'likes-tab')">Likes</button>{% endif %}
+        </div>
+
+
+        <div id="posts-tab" class="tabcontent">
+            {{ posts.dom("profile")}}
+        </div>
+
+        <div id="replies-tab" class="tabcontent">
+            {{ posts.dom("replies") }}
+        </div>
+
+        {% if profile.user_id == user.id %} 
+            <div id="likes-tab" class="tabcontent">
+                <br>
+                Your likes are only visible to you.
+                {{ posts.dom("likes") }}
+            </div>
+        {% endif %}
+        
+        
+        <br>
+    {% else %}
+        <h2>Error</h2>
+        <p>Profile not found</p>
+        
+    {% endif %}
+
+{% endblock %}
+
+{% block script %}
+    {% if profile and profile.user_id == user.id %}
+            <script>
+                document.getElementById("updatePFP").onclick = function(){
+                    var input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.png,.jpg,.jpeg'
+
+                    input.onchange = function(e) {
+                        var file = e.target.files[0];
+                        if (!file) return;
+
+                        // const imageUrl = URL.createObjectURL(file);
+                        // document.querySelector('.large_pfp').src = imageUrl;
+                        
+                        var formData = new FormData();
+                        formData.append('picture', file);
+                        console.log(file)
+                        
+                        uploadImage(formData);
+                    };
+
+                    input.click();
+                    
+                    async function uploadImage(formData) {
+                        try {
+                            const response = await fetch('/api/update-pfp', {
+                                method: 'POST',
+                                body: formData,
+                            });
+
+                            const result = await response.json();
+                            console.log('Success:', result);
+                            if (result["ok"] === true){
+                                window.location.reload();
+                            }
+                        } catch (error) {
+                            console.error('Error uploading:', error);
+                        }
+                    }
+                }
+            </script>
+    {% endif %}
+
+    {{ posts.script({"profile_username": profile.username}) }}
+
+    {% include "partials/tabs.njk" %}
+{% endblock %}

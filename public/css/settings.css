@@ -1,0 +1,23 @@
+.large_pfp{
+    width: 100px;
+    height: 100PX;
+    border: 1px solid black;
+    margin-right: 20px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+#settings-container{
+    text-align: left;
+    box-sizing: border-box;
+    padding: 40px;
+    width: 100%; background-color: rgb(255, 255, 255);
+    overflow: auto;
+    
+}
+
+table{
+    width: 500px;
+    margin-top: 2px;
+    
+}

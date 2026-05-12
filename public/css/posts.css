@@ -1,0 +1,191 @@
+.inline-pfp{
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    
+    /* border: 1px solid black; */
+    vertical-align: top;
+    margin-right: 15px;
+    object-fit: cover;
+}
+
+#posts{
+    /* background-color: #ffffff; */
+    border: none !important;
+    text-align: left;
+    margin: 10px 0;
+    padding: 10px 50px 10px 50px;
+}
+
+
+
+#posts .post{
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+#posts .post a{
+    color: black; 
+    text-decoration: none;
+}
+
+#posts #gallery{
+    border-radius: 5px;
+    width: auto;
+    margin: 0px;
+    padding: 0px;    
+    margin-top: 25px;
+}
+
+#posts #gallery{
+    transform: none
+}
+
+#posts #gallery > img{
+    object-fit:contain;
+    max-width: 100%;
+    max-height: 510px;
+    display: block;
+}
+
+#posts .post > span{
+    margin: 0px;
+    margin-top: 20px;
+    display: inline-block;
+    white-space: pre-wrap;
+}
+
+#posts .deleteButton{
+    border: none;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    background-color: rgb(207, 207, 207);
+    margin-top: 8px;
+}
+
+#posts .deleteButton:hover{
+    background-color: rgb(223, 83, 83);
+    color: white;
+}
+
+#posts .post .action-buttons{
+
+    display: grid;
+    height: auto;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+
+    margin-top: 20px;
+    gap: 10px;
+}
+
+#posts .post .action-buttons button{
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
+    
+    width: 100%;
+    
+}
+
+#posts #gallery > img:only-of-type{
+    border-radius: 5px;
+}
+
+#posts > .post .content{
+    align-self:flex-start;
+    width: 100%;
+    box-sizing: border-box;
+    
+    text-align: left;
+    display: inline-block;
+    padding: 10px;
+}
+
+video-player .media-volume-slider {
+  transform: translateX(-385px);
+}
+
+.postContainer{
+    box-sizing: border-box;
+    
+    display: block;
+    padding: 10px;
+
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    width: 100%;
+
+    border-radius: 5px;
+
+    background-color: #ffffff; 
+}
+
+.postContainer:hover{
+    cursor: pointer;
+    background-color: #f7f7f7;
+}
+
+.postContainer.detailed-view:hover{
+    background-color: #ffffff; 
+}
+
+.postContainer:first-of-type{
+    margin-top: 0px;
+}
+
+.postContainer:last-of-type{
+    margin-bottom: 0px;
+}
+
+.isLiked{
+    color: rgb(52, 173, 52);
+    font-weight: 500;
+}
+
+/*           */
+/* Postmaker */
+/*           */
+
+.postMaker{
+    width: calc(100% - 130px);
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9; 
+    margin-left: 50%;
+    transform: translateX(-50%); 
+    margin-top: 10px;
+}
+
+.postMaker .button{
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 7px 15px;
+    background-color: #007bff;
+}
+
+.postMaker .button:hover{
+    background-color: #0074f0;
+}
+
+.postMaker #mediaPreview{
+    margin-top: 10px;
+}
+
+.postMaker #mediaPreview img{
+    border-radius: 5px;
+    max-width: 20%;
+}
+
+.postMaker #mediaPreview div:only-child img{
+    border-radius: 5px;
+    max-width: 40%;
+    max-height: 40%;
+}
+
+.postMaker #mediaPreview > *{
+    display: inline;
+}

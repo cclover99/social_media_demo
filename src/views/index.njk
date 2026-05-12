@@ -1,0 +1,43 @@
+{% extends "base.njk" %}
+
+{% from "partials/posts.njk" import posts %}
+
+{% block head %}
+    <link rel="stylesheet" href="/css/index.css">
+    
+    {{ posts.style | safe }}
+
+{% endblock %}
+
+{% block content %}
+    <div id="feedToggle" class="tab">
+        <button class="tablinks active-tab" onclick="toggleTab(event, 'Global')">Global</button>
+        <button class="tablinks" onclick="toggleTab(event, 'Following')">Following</button>
+    </div>
+
+    {% if user and user.id %}
+        {% include "partials/postmaker.njk" %}
+    {% endif %}
+    
+    <style>
+        .tabcontent { display: none; }
+    </style>
+    
+
+    <div id="Global" class="tabcontent">
+        {{ posts.dom("all") }}
+    </div>
+
+    <div id="Following" class="tabcontent">
+        {{ posts.dom("following") }}
+    </div>
+
+    
+{% endblock %}
+
+{% block script %}
+
+    {{ posts.script() }}
+
+    {% include "partials/tabs.njk" %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.njk" %}
+
+{% from "partials/posts.njk" import posts %}
+
+{% block head %}
+    <link rel="stylesheet" href="/css/index.css">
+
+    {{ posts.style | safe }}
+
+{% endblock %}
+
+{% block content %}
+    
+    {% if post %}
+        {{ posts.dom("detailed")}}
+        
+    {% else %}
+        <div class="missing">
+            Post not found
+        </div>
+    {% endif %}
+    
+{% endblock %}
+
+
+{% block script %}
+
+    {{ posts.script({"post_id": post.post_id, "user_id": user.id})}}
+
+{% endblock %}
