@@ -21,7 +21,7 @@ jobs:
       - name: Sync files with rsync
         run: |
           rsync \
-            -e "ssh -i ~/.ssh/github_social_deploy"
+            -e "ssh -i ~/.ssh/github_social_deploy" \
             -avzr --delete \
             --exclude='.git/' \
             --exclude='.github/' \
