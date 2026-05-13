@@ -27,8 +27,8 @@ jobs:
             --exclude='node_modules/' \
             --exclude='cdn/media/*' \
             --exclude='cdn/profile_images/*' \
-            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/username/sites/sitename/
+            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/webhost/servers/social_media_demo/
 
       - name: Restart Docker containers
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /home/username/sites/sitename/ && docker-compose up -d --build"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /home/webhost/servers/social_media_demo/ && docker-compose up -d --build"
