@@ -33,4 +33,4 @@ jobs:
 
       - name: Restart Docker containers
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /home/webhost/servers/social_media_demo/ && docker-compose up -d --build"
+          ssh -i ~/.ssh/github_social_deploy ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /home/webhost/servers/social_media_demo/ && docker-compose up -d --build"
