@@ -10,8 +10,14 @@ services:
     volumes:
       # Runs schema.sql on startup
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      
       # This keeps data alive even if the container restarts
       - mysql_data:/var/lib/mysql
+
+      # Keep these synced
+      - ./.env:/app/.env 
+      - ./cdn/media:/app/cdn/media
+      - ./cdn/profile_images:/app/cdn/profile_images
 
   app:
     build: .
