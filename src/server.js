@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 });
 
 
-
+// Nunjucks
 nunjucks.configure(path.join(__dirname, './views'), {
     autoescape: true,
     express: app,
@@ -75,11 +75,35 @@ app.get('/', (req, res) => {
 });
 
 
+function mountOnSubdomain(subdomainName, router) {
+  return (req, res, next) => {
+    // req.hostname is "subdomain.localhost:4000" → split to "subdomain"
+    const hostParts = req.hostname.split(".");
+    const actualHostname = hostParts[hostParts.length - 1].includes(":")
+      ? hostParts.slice(0, -1).join(".")
+      : hostParts.join(".");
+    const subdomains = hostParts.slice(0, -1);
+
+    // If no dot, no subdomain (== root)
+    const primarySubdomain = subdomains.length > 0 ? subdomains[0] : null;
+
+    if (primarySubdomain === subdomainName) {
+      router(req, res, next);
+    } else {
+      next();
+    }
+  };
+}
+
+
 // Import routes
 const authRoutes = require('./routes/auth')
 const profileRoutes = require('./routes/profile')
 const postRoutes = require('./routes/postview')
 const apiRoutes = require('./routes/api')
+
+// Subdomain Routes
+const dashboardRoutes = require('./routes/dashboard')
 
 
 
@@ -88,6 +112,10 @@ app.use('/', authRoutes);
 app.use('/u', profileRoutes);
 app.use('/u', postRoutes);
 app.use('/api', apiRoutes);
+
+// Mount subdomain
+app.use("/", mountOnSubdomain("dashboard", dashboardRoutes))
+
 
 // Mount /cdn
 app.use('/cdn', express.static(path.join(__dirname, '../cdn')));

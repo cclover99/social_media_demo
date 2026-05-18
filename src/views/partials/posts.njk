@@ -16,7 +16,7 @@
 {# Define DOM per unique displayType #}
 {% macro _dom(feedType = "all") %}
     <div class="posts" data-feed="{{ feedType }}" id="posts"></div>
-    <div class="sentinel" data-feed="{{ feedType }}">Intersection Observer</div>
+    <div class="sentinel" data-feed="{{ feedType }}"></div>
 
     {% if feedType == "detailed" %}
         <div id="commentsContainer">
@@ -24,7 +24,7 @@
             {% include "partials/postmaker.njk" %}
 
             <div class="posts" data-feed="comments" id="posts"></div>
-            <div class="sentinel" data-feed="comments">Intersection Observer</div>        
+            <div class="sentinel" data-feed="comments"></div>        
         </div>
     {% endif %}
 {% endmacro %}
@@ -148,7 +148,7 @@
 
             const topContainer = document.createElement("div");
             topContainer.style.height = "auto";
-            topContainer.style.overflow = "scroll";
+            topContainer.style.overflow = "hidden";
             topContainer.appendChild(usernameLink);
             topContainer.appendChild(postDate);
             topContainer.appendChild(document.createElement("br"));
@@ -164,9 +164,7 @@
                     };  
                 };
 
-                deleteButton.style.float = "right";
-
-                
+                deleteButton.style.float = "right"; 
 
                 deleteButton.innerText = "Delete Post";
                 deleteButton.classList.add("deleteButton");
