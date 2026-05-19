@@ -27,10 +27,10 @@ jobs:
             --exclude='.github/' \
             --exclude='.env' \
             --exclude='node_modules/' \
-            --exclude='cdn/media/*' \
-            --exclude='cdn/profile_images/*' \
-            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/webhost/servers/social_media_demo/
+            --exclude='shared/cdn/media/*' \
+            --exclude='shared/cdn/profile_images/*' \
+            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/${{ secrets.VPS_USER }}/servers/social_media_demo/
 
       - name: Restart Docker containers
         run: |
-          ssh -i ~/.ssh/github_social_deploy ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /home/webhost/servers/social_media_demo/ && docker-compose up -d --build"
+          ssh -i ~/.ssh/github_social_deploy ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /home/${{ secrets.VPS_USER }}/servers/social_media_demo/ && docker-compose up -d --build"

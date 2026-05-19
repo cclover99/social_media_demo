@@ -12,7 +12,7 @@
     {% if profile %}
         {% if profile.user_id == user.id %}
             <div class="pfp_container">
-                <img class="large_pfp" src="{{ ('/cdn/profile_images/' + profile.profile_pic) if profile.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
+                <img class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + profile.profile_pic) if profile.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
                 <button id="updatePFP">
                     <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="52" height="52" viewBox="0 0 64 64">
                         <path fill="white" d="M49,13c3.314,0,6,2.686,6,6v26c0,3.314-2.686,6-6,6H15c-3.314,0-6-2.686-6-6V19c0-3.314,2.686-6,6-6H49z M23,23	c-2.209,0-4,1.791-4,4c0,2.209,1.791,4,4,4c2.209,0,4-1.791,4-4C27,24.791,25.209,23,23,23z M51,45v-3.566l-9.319-8.38	c-1.524-1.37-3.836-1.367-5.356,0.006l-7.922,7.158l-3.793-3.244c-1.501-1.284-3.714-1.28-5.211,0.009L13,42.496V45	c0,1.105,0.895,2,2,2h34C50.104,47,51,46.105,51,45z"></path>
@@ -22,7 +22,7 @@
             
         {% else %}
             <div class="pfp_container">
-                <img class="large_pfp" src="{{ ('/cdn/profile_images/' + profile.profile_pic) if profile.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
+                <img class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + profile.profile_pic) if profile.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
             </div>
             
         {% endif %}

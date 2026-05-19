@@ -5,6 +5,6 @@
 node_modules/
 
 # CDN images
-cdn/media/*
-cdn/profile_images/*
+shared/cdn/media/*
+shared/cdn/profile_images/*
 !.gitkeep

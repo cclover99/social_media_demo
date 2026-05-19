@@ -1,11 +1,13 @@
 const path = require('path');
-const helmet = require('helmet');
+
 const express = require('express');
 const session = require('express-session');
-const nunjucks = require('nunjucks');
 
-const db = require('./config/db');
-const SQLSessionStore = require('./config/sessionStore');
+const nunjucks = require('nunjucks');
+const helmet = require('helmet');
+
+const db = require('./shared/config/db');
+const SQLSessionStore = require('./shared/config/sessionStore');
 require('dotenv').config();
 
 
@@ -13,23 +15,44 @@ const app = express();
 const PORT = process.env.PORT
 
 
-// Create routes
-const mainRouter = express.Router();
-const dashboardRouter = express.Router();
+// Create express apps
+const mainApp = express();
+const dashboardApp = express();
+const cdnApp = express();
 
 
 // Nunjucks setup
-app.set('views', path.join(__dirname, './views'));
-app.set('view engine', 'njk');
+const nunjucks_config = {
+    autoescape: true,
+    // watch: true,
+    noCache: true
+}
+// Main app
+mainApp.set('view engine', 'njk');
+mainApp.set('views', path.join(__dirname, './apps/main/src/views'));
+const mainEnv = nunjucks.configure(
+    path.join(__dirname, './apps/main/src/views'), {
+    ...nunjucks_config,
+    express: mainApp
+});
+mainEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
+
+// Dashboard
+dashboardApp.set('view engine', 'njk');
+dashboardApp.set('views', path.join(__dirname, './apps/dashboard/src/views'));
+const dashboardEnv = nunjucks.configure(
+    path.join(__dirname, './apps/dashboard/src/views'), {
+    ...nunjucks_config,
+    express: dashboardApp
+});
+dashboardEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
 
 
 // Disable etag for fresher pages
 app.disable('etag');
 
+// No idea
 app.disable('x-powered-by');
-
-// Don't cache .njk files
-app.disable('view cache');
 
 
 // Handle form data
@@ -43,14 +66,6 @@ app.use((req, res, next) => {
     next();
 });
 
-
-// Nunjucks
-nunjucks.configure(path.join(__dirname, './views'), {
-    autoescape: true,
-    express: app,
-    // watch: true,
-    noCache: true
-});
 
 
 // Define Session
@@ -73,8 +88,8 @@ app.get(/^\/index(\.html)?$/, (req, res) => { res.redirect(301, '/') });
 
 
 // If in localhost set the subdomain offset
-if (process.env.NODE_ENV === 'development')
-    app.set('subdomain offset', 1)
+if (process.env.NODE_ENV === 'development') 
+    app.set('subdomain offset', 1);
 
 
 
@@ -91,42 +106,60 @@ function subdomainHandler(subdomainName, router) {
 
 
 // Import routes
-const authRoutes = require('./routes/auth');
-const profileRoutes = require('./routes/profile');
-const postRoutes = require('./routes/postview');
-const apiRoutes = require('./routes/api');
+const authRoutes = require('./apps/main/src/routes/auth');
+const profileRoutes = require('./apps/main/src/routes/profile');
+const postRoutes = require('./apps/main/src/routes/postview');
+const apiRoutes = require('./apps/main/src/routes/api');
 
 // Subdomain Routes
-const dashboardRoutes = require('./routes/dashboard/dashboard');
-const dashboardApiRoutes = require('./routes/dashboard/api');
+const dashboardRoutes = require('./apps/dashboard/src/routes/dashboard');
+const dashboardApiRoutes = require('./apps/dashboard/src/routes/api');
 
 
 // Mount global routes
-mainRouter.use('/', authRoutes);
+mainApp.use('/', authRoutes);
 
 
 // Mount to root
-mainRouter.use('/u', profileRoutes);
-mainRouter.use('/u', postRoutes);
-mainRouter.use('/api', apiRoutes);
+mainApp.use('/u', profileRoutes);
+mainApp.use('/u', postRoutes);
+mainApp.use('/api', apiRoutes);
 
 
 // Mount subdomain
-dashboardRouter.use("/", dashboardRoutes);
-dashboardRouter.use("/api", dashboardApiRoutes);
+dashboardApp.use("/", dashboardRoutes);
+dashboardApp.use("/api", dashboardApiRoutes);
 
 
 // Mount /cdn
-mainRouter.use('/cdn', express.static(path.join(__dirname, '../cdn')));
+mainApp.use('/cdn', express.static(path.join(__dirname, '../cdn')));
 
 
 // Root URL, index
-mainRouter.get('/', (req, res) => { res.render('index', {"user": req.session.user}) });
+mainApp.get('/', (req, res) => { res.render('index', {"user": req.session.user}) });
 
 
+// Mount shared
+cdnApp.use(express.static(path.join(__dirname, './shared/cdn'), { 
+    dotfiles: 'deny',
+    index: false,
+    redirect: false,
+    extensions: ['html', 'htm'],
+
+    setHeaders: (res, path, stat) => {
+        // Stop browsers from trying to "guess" the file type
+        res.set('X-Content-Type-Options', 'nosniff');
+        
+        // Prevent pages from being put in an <iframe> on another site
+        // res.set('X-Frame-Options', 'DENY');
+
+        res.set('Access-Control-Allow-Origin', '*'); // Or 'http://localhost:4000'
+        res.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    }
+}));
 
 // Mount /public, serves everything in the 'public' folder.
-app.use(express.static(path.join(__dirname, '../public'), { 
+mainApp.use(express.static(path.join(__dirname, './apps/main/public'), { 
     dotfiles: 'deny',
     index: false,
     redirect: false,
@@ -153,11 +186,18 @@ app.use('/dist', express.static(path.join(__dirname, '../dist')));
 app.use((req, res, next) => {
     if (req.subdomains.includes('admin')) {
         // If the URL has 'dashboard', send it EXCLUSIVELY to the dashboard router
-        return dashboardRouter(req, res, next);
-    } else {
+        return dashboardApp(req, res, next);
+    } else if (req.subdomains.includes('cdn')) {
         // If it doesn't, send it EXCLUSIVELY to the main site router
-        return mainRouter(req, res, next);
+        return cdnApp(req, res, next);
+    } else if (req.subdomains.length == 0){
+        return mainApp(req, res, next);
     };
+});
+
+// CDN 404 handler
+cdnApp.use((req, res) => {
+    res.status(404).send('404: Asset Not Found');
 });
 
 

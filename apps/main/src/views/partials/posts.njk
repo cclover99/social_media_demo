@@ -99,7 +99,7 @@
                     media_dom.innerHTML = inlineVideoPlayer(m);
                 }else{
                     media_dom = document.createElement("img");
-                    media_dom.src = `/cdn/media/${m}`;
+                    media_dom.src = `{{ CDN_HOST }}/media/${m}`;
                 }
 
                 gallery.appendChild(media_dom);
@@ -253,7 +253,7 @@
                 // If it doesn't exist stop trying to make it exist
                 if (!post) return;
                 if (post?.profile_pic)
-                    post.profile_pic = '/cdn/profile_images/'+post.profile_pic
+                    post.profile_pic = '{{ CDN_HOST }}/profile_images/'+post.profile_pic
                 else
                     post.profile_pic = '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg';
                 

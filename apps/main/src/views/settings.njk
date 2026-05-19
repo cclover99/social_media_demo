@@ -6,7 +6,7 @@
 
 {% block content %}
     <div id="settings-container">
-        <img style="float: left" class="large_pfp" src="{{ ('/cdn/profile_images/' + user.profile_pic) if user.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
+        <img style="float: left" class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
 
             
         <!-- {{ profile.about | default('This user has yet to tell about themselves', true) }}  -->

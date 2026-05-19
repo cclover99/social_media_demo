@@ -1,9 +1,10 @@
 services:
   db:
     image: mysql:8.0
+    restart: always
     environment:
       # These use the values from .env file
-      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}    
       MYSQL_PASSWORD: ${DB_PASS}
@@ -19,7 +20,7 @@ services:
   app:
     build: .
     ports:
-      - "4000:4000"
+      - "${PORT}:${PORT}"
     depends_on:
       - db
     environment:
@@ -28,8 +29,8 @@ services:
     volumes:
       # Keep these synced
       - ./.env:/app/.env 
-      - ./cdn/media:/app/cdn/media
-      - ./cdn/profile_images:/app/cdn/profile_images
+      - ./shared/cdn/media:/app/cdn/media
+      - ./shared/cdn/profile_images:/app/cdn/profile_images
 
 volumes:
   mysql_data:

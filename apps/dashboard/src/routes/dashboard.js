@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const db = require('../../config/db');
+const db = require('#config/db');
 
 require('dotenv').config();
 
@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
     const port = req.socket?.localPort ? `:${req.socket?.localPort}` : '';
     
     if (req.session.user?.isAdmin || true) {
-        return res.render('dashboard/index', {"user": req.session.user})
+        return res.render('../views/index', {"user": req.session.user})
     } else {
         return res.redirect(`${req.protocol}://${mainUrl}${port}/login`);
     };

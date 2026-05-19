@@ -1,3 +1,0 @@
-function generateVideoElement(url){
-    return;
-}

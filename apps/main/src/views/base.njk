@@ -21,7 +21,7 @@
         <div style="text-align: left;">
             {% if user and user.id %}
                 <div>
-                    <a class="profile_link" href="/u/{{ user.username }}"><img src="{{ ('/cdn/profile_images/' + user.profile_pic) if user.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}"> {{ user.username }}</a>
+                    <a class="profile_link" href="/u/{{ user.username }}"><img src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}"> {{ user.username }}</a>
 
                     
                     <a class="nav-button" href="/chat"> Messages </a>
@@ -50,7 +50,8 @@
         rightside
     </section>
 
-    <script src="/js/shared.js"></script>
-    {% block script %}{% endblock %} {# Placeholder for page-specific JS #}
+    <script src="{{ CDN_HOST }}/js/shared.js"></script>
+    {# Placeholder for page-specific JS #}
+    {% block script %}{% endblock %} 
 </body>
 </html>
