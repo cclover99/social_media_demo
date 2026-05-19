@@ -243,7 +243,6 @@ router.post('/get-posts', async (req, res) => {
         } 
         
         else if (page_type == "following" && req.session.user?.id){
-            console.log('follow')
             // Get the following list of the author
             const [[following]] = await db.query('SELECT following_id FROM follows WHERE follower_id = ?', req.session.user.id);
 
