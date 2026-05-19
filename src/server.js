@@ -12,9 +12,16 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT
 
-app.set('views', path.join(__dirname, './views'));
 
+// Create routes
+const mainRouter = express.Router();
+const dashboardRouter = express.Router();
+
+
+// Nunjucks setup
+app.set('views', path.join(__dirname, './views'));
 app.set('view engine', 'njk');
+
 
 // Disable etag for fresher pages
 app.disable('etag');
@@ -23,19 +30,12 @@ app.disable('x-powered-by');
 
 // Don't cache .njk files
 app.disable('view cache');
-// app.use(
-//     helmet({
-//         // Allow inline scripts to run
-//         contentSecurityPolicy: {
-//             directives: 
-//             // {"script-src": ["'self'"]}
-//             {"script-src": ["'self'", "'unsafe-inline'"]}
-//         }
-//     })
-// );
 
-app.use(express.urlencoded({ extended: true })); // To read form data
-app.use(express.json()); // To read json form data
+
+// Handle form data
+app.use(express.urlencoded({ extended: true })); 
+app.use(express.json()); 
+
 
 // Explicitly tell the browser not to cache
 app.use((req, res, next) => {
@@ -52,6 +52,7 @@ nunjucks.configure(path.join(__dirname, './views'), {
     noCache: true
 });
 
+
 // Define Session
 app.use(session({
     store: new SQLSessionStore(db),
@@ -66,61 +67,65 @@ app.use(session({
     } 
 }));
 
+
 // Redirect 'index' and 'index.html' to '/'
 app.get(/^\/index(\.html)?$/, (req, res) => { res.redirect(301, '/') });
 
-// Root URL, index
-app.get('/', (req, res) => {
-    res.render('index', {"user": req.session.user});
-});
+
+// If in localhost set the subdomain offset
+if (process.env.NODE_ENV === 'development')
+    app.set('subdomain offset', 1)
 
 
-function mountOnSubdomain(subdomainName, router) {
-  return (req, res, next) => {
-    // req.hostname is "subdomain.localhost:4000" → split to "subdomain"
-    const hostParts = req.hostname.split(".");
-    const actualHostname = hostParts[hostParts.length - 1].includes(":")
-      ? hostParts.slice(0, -1).join(".")
-      : hostParts.join(".");
-    const subdomains = hostParts.slice(0, -1);
 
-    // If no dot, no subdomain (== root)
-    const primarySubdomain = subdomains.length > 0 ? subdomains[0] : null;
-
-    if (primarySubdomain === subdomainName) {
-      router(req, res, next);
-    } else {
-      next();
-    }
-  };
-}
+function subdomainHandler(subdomainName, router) {
+    return (req, res, next) => {    
+        console.log(req.subdomains) 
+        if (req.subdomains.includes(subdomainName)) {
+            router(req, res, next);
+        } else {
+            next();
+        }
+    };
+};
 
 
 // Import routes
-const authRoutes = require('./routes/auth')
-const profileRoutes = require('./routes/profile')
-const postRoutes = require('./routes/postview')
-const apiRoutes = require('./routes/api')
+const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
+const postRoutes = require('./routes/postview');
+const apiRoutes = require('./routes/api');
 
 // Subdomain Routes
-const dashboardRoutes = require('./routes/dashboard')
+const dashboardRoutes = require('./routes/dashboard/dashboard');
+const dashboardApiRoutes = require('./routes/dashboard/api');
 
 
+// Mount global routes
+mainRouter.use('/', authRoutes);
 
-// Mount routes
-app.use('/', authRoutes);
-app.use('/u', profileRoutes);
-app.use('/u', postRoutes);
-app.use('/api', apiRoutes);
+
+// Mount to root
+mainRouter.use('/u', profileRoutes);
+mainRouter.use('/u', postRoutes);
+mainRouter.use('/api', apiRoutes);
+
 
 // Mount subdomain
-app.use("/", mountOnSubdomain("dashboard", dashboardRoutes))
+dashboardRouter.use("/", dashboardRoutes);
+dashboardRouter.use("/api", dashboardApiRoutes);
 
 
 // Mount /cdn
-app.use('/cdn', express.static(path.join(__dirname, '../cdn')));
+mainRouter.use('/cdn', express.static(path.join(__dirname, '../cdn')));
 
-// Mount /public, serves everything in the 'public' folder. Put this at the absolute bottom.
+
+// Root URL, index
+mainRouter.get('/', (req, res) => { res.render('index', {"user": req.session.user}) });
+
+
+
+// Mount /public, serves everything in the 'public' folder.
 app.use(express.static(path.join(__dirname, '../public'), { 
     dotfiles: 'deny',
     index: false,
@@ -128,28 +133,47 @@ app.use(express.static(path.join(__dirname, '../public'), {
     extensions: ['html', 'htm'],
 
     setHeaders: (res, path, stat) => {
-        // Stop browsers from trying to "guess" the file type // MIME sniffing
+        // Stop browsers from trying to "guess" the file type
         res.set('X-Content-Type-Options', 'nosniff');
         
-        // Prevent pages from being put in an <iframe> on another site // Clickjacking
+        // Prevent pages from being put in an <iframe> on another site
         res.set('X-Frame-Options', 'DENY');
     }
 }));
 
-// vite build
+
+
+// vite build files
 app.use('/dist', express.static(path.join(__dirname, '../dist')));
 
-// Place this after routes for 404 handling
-app.use((req, res) => {
-    // logger.warn(`404 - Page Not Found: ${req.originalUrl} - IP: ${req.ip}`);
-    
-    res.status(404).render('404', {"user": req.session.user});
+
+
+
+// Connect all the routers
+app.use((req, res, next) => {
+    if (req.subdomains.includes('admin')) {
+        // If the URL has 'dashboard', send it EXCLUSIVELY to the dashboard router
+        return dashboardRouter(req, res, next);
+    } else {
+        // If it doesn't, send it EXCLUSIVELY to the main site router
+        return mainRouter(req, res, next);
+    };
 });
 
-// Error Handling.
-// Place this at the absolute bottom.
+
+// 404 handler
+app.use((req, res) => {
+    // logger.warn(`404 - Page Not Found: ${req.originalUrl} - IP: ${req.ip}`);
+    let error_page = req.subdomains.includes('admin') ? 'dashboard/404' : '404';
+    
+    return res.status(404).render(error_page, {"user": req.session.user});
+});
+
+
+// 505 handler for main
 app.use((err, req, res, next) => {
-    console.log(err.stack)
+    let error_page = 'dashboard/505' ? req.subdomains.includes('admin') : '505';
+    console.log(err.stack);
     // logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip} \nStack: ${err.stack}`);
 
     res.status(err.status || 500).json({
@@ -158,7 +182,6 @@ app.use((err, req, res, next) => {
     });
 });
 
+
 // Run server
-const server = app.listen(PORT, () => {
-    console.log(`Express server running at http://localhost:${PORT}`);
-});
+const server = app.listen(PORT, () => { console.log(`Express server running at http://localhost:${PORT}`) });
