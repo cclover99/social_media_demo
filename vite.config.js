@@ -8,7 +8,7 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       // This is the CRITICAL part: point it to your JS file
-      input: path.resolve(__dirname, './shared/cdb/js/video-bundle.js'),
+      input: path.resolve(__dirname, './shared/cdn/js/video-bundle.js'),
       output: {
         // Keeps the filename as video-bundle.js instead of adding hashes
         entryFileNames: `[name].js`,
