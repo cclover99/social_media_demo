@@ -138,24 +138,22 @@
         const feed_replies = document.getElementById('feed_replies');
         const feed_likes = document.getElementById('feed_likes');
 
-        
-        
         function setState(elm, tabName){
             tabcontent = document.getElementsByClassName("tabcontent");
 
             for (i = 0; i < tabcontent.length; i++) {
                 tabcontent[i].style.display = "none";
-            }
+            };
 
             tablinks = document.getElementsByClassName("tablinks");
 
             for (i = 0; i < tablinks.length; i++) {
                 tablinks[i].classList.remove("active-tab");
-            }
+            };
 
             document.getElementById(tabName).style.display = "block";
             elm.classList.add("active-tab");
-        }
+        };
 
         function initState(){
             const path_name = document.location.pathname;
@@ -167,7 +165,7 @@
             } else{
                 setState(feed_posts, 'posts-tab');
             }
-        }
+        };
 
         window.addEventListener('popstate', () => {
             window.scrollTo({ top: 0 });
