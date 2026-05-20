@@ -141,7 +141,10 @@ video-player .media-volume-slider {
 
 .isLiked{
     color: rgb(52, 173, 52);
-    font-weight: 500;
+}
+
+.isBookmarked{
+    color: rgb(34, 123, 196);
 }
 
 /*           */

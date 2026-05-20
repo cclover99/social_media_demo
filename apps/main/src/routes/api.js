@@ -197,16 +197,23 @@ router.post('/get-posts', async (req, res) => {
     let filters = [];
     let where = [];
 
+    let orderBy = `p.publish_date DESC, p.post_id DESC`;
+
     // If user logged in also check if liked or not
     if(req.session.user?.id){
         query += `
-              ,CASE WHEN l.user_id IS NULL THEN 0 ELSE 1 END AS is_liked
+                , CASE WHEN l.user_id IS NULL THEN 0 ELSE 1 END AS is_liked
+                , CASE WHEN b.user_id IS NULL THEN 0 ELSE 1 END AS is_bookmarked
             FROM posts p 
             JOIN users u ON p.author_id = u.user_id
             LEFT JOIN likes l
-              ON l.post_id = p.post_id
-              AND l.user_id = ?
+            ON l.post_id = p.post_id
+            AND l.user_id = ?
+            LEFT JOIN bookmarks b
+            ON b.post_id = p.post_id
+            AND b.user_id = ?
         `;
+        filters.push(req.session.user.id);
         filters.push(req.session.user.id);
     }else{
         query += `
@@ -266,39 +273,25 @@ router.post('/get-posts', async (req, res) => {
             // User's replies
             where.push("parent_post_id IS NOT NULL");
         } else if (page_type == "likes" && author_name) {
-            const [likes] = await db.query(`SELECT post_id FROM likes WHERE user_id = ( SELECT user_id FROM users WHERE username = ? ) `, [author_name]);
-            const likesArray = likes.map(likes => likes.post_id);
+            // Join the likes table so we can access 'liked_at'
+            query += ` JOIN likes lk ON p.post_id = lk.post_id `;
             
-            if ( likesArray.length > 0){
-                // 1. Create a string of placeholders: "?, ?, ?"
-                const placeholders = likesArray.map(() => "?").join(", ");
-                
-                // 2. Push the IN clause to your where array
-                where.push(`p.post_id IN (${placeholders})`);
-                
-                // 3. Spread the array elements into the filters array
-                filters.push(...likesArray);
-            }else{
-                // If no liked posts then don't retrieve anything
-                where.push("1 = 0");
-            };
+            // Filter by the user who liked the posts
+            where.push(`lk.user_id = (SELECT user_id FROM users WHERE username = ?)`);
+            filters.push(author_name);
+            
+            // Override the order to sort by the interaction time
+            orderBy = `lk.liked_at DESC, p.post_id DESC`;
         } else if (page_type == "bookmarks"){
-            const [bookmarks] = await db.query(`SELECT post_id FROM bookmarks WHERE user_id = ? `, [req.session.user?.id]);
-            const bookmarksArray = bookmarks.map(bookmarks => bookmarks.post_id);
+            // Join the bookmarks table so we can access 'bookmarked_at'
+            query += ` JOIN bookmarks bk ON p.post_id = bk.post_id `;
             
-            if ( bookmarksArray.length > 0){
-                // 1. Create a string of placeholders: "?, ?, ?"
-                const placeholders = bookmarksArray.map(() => "?").join(", ");
-                
-                // 2. Push the IN clause to your where array
-                where.push(`p.post_id IN (${placeholders})`);
-                
-                // 3. Spread the array elements into the filters array
-                filters.push(...bookmarksArray);
-            }else{
-                // If no liked posts then don't retrieve anything
-                where.push("1 = 0");
-            };
+            // Filter by the currently logged-in user
+            where.push(`bk.user_id = ?`);
+            filters.push(req.session.user?.id);
+            
+            // Override the order to sort by the interaction time
+            orderBy = `bk.bookmarked_at DESC, p.post_id DESC`;
         };
 
 
@@ -310,11 +303,10 @@ router.post('/get-posts', async (req, res) => {
         if (where.length)
             query += ` WHERE ${where.join(' AND ')}`;
 
-        // Shared query tail
-        if (page_type != "following"){
-            query += ` ORDER BY p.publish_date DESC, p.post_id DESC LIMIT 10`;
-        }
-            
+        
+        
+        // Qyery tail
+        query += ` ORDER BY ${orderBy} LIMIT 10`;
 
 
         // Mysql query
@@ -473,6 +465,20 @@ router.post('/bookmark-post', async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
 
     const {post_id} = req.body;
+
+    const [[is_bookmarked]] = await db.query("SELECT post_id FROM bookmarks WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
+
+    if (!is_bookmarked){
+        // If not bookmarked then like
+        await db.query('INSERT INTO bookmarks (user_id, post_id) VALUES (?, ?)', [req.session.user.id, post_id]);
+        
+        res.json({ "ok": true });
+    }else{
+        // If bookmarked then un-bookmark
+        await db.query('DELETE FROM bookmarks WHERE user_id = ? AND post_id = ?;', [req.session.user.id, post_id]);
+        
+        res.json({ "ok": true });
+    };
     
 });
 

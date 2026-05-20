@@ -178,6 +178,7 @@
             const  likeButton = genPostButton();
             if (data.is_liked)
                 likeButton.classList.add('isLiked');
+
             likeButton.onclick = async function(){ 
                 let result = await jsonQuery('/api/like-post', JSON.stringify({"post_id": data.post_id}));
                 // If anything were to go wrong with the query then return
@@ -221,7 +222,16 @@
 
             // Bookmark
             const  bookmarkButton = genPostButton();
-            bookmarkButton.onclick = function(){ jsonQuery('/api/bookmark-post', JSON.stringify({"post_id": data.post_id})) };
+            if (data.is_bookmarked)
+                bookmarkButton.classList.add('isBookmarked');
+
+            bookmarkButton.onclick = async function(){ 
+                let result = await jsonQuery('/api/bookmark-post', JSON.stringify({"post_id": data.post_id}));
+                // If anything were to be not ok then return
+                if (!result?.ok == true){ return }
+                
+                bookmarkButton.classList.toggle('isBookmarked');
+            };
             bookmarkButton.innerText = "Bookmark";
             //
 
