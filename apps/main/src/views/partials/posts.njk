@@ -3,12 +3,12 @@
     <link rel="stylesheet" href="/css/posts.css">
 
     {% if process.env.NODE_ENV == 'development' %}
-        <script type="module" src="/js/video-bundle.js"></script>
+        <script type="module" src="{{ CDN_HOST }}/js/video-bundle.js"></script>
     {% else %}
-        <script type="module" src="/dist/video-bundle.js"></script>
+        <script type="module" src="{{ CDN_HOST }}/dist/video-bundle.js"></script>
     {% endif %}
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/html/cdn/video.css"> -->
-    <link rel="stylesheet" href="/css/video-minimal-skin.css">
+    <link rel="stylesheet" href="{{ CDN_HOST }}/css/video-minimal-skin.css">
 
 {% endset %}
 
@@ -32,7 +32,7 @@
 
 {# Shared code #}
 {% macro _script(data = {}) %}
-<script src="/js/video-maker.js"></script>
+<script src="{{ CDN_HOST }}/js/video-maker.js"></script>
 <script>
         function genPostForm(){
             const formElem = document.createElement("form");

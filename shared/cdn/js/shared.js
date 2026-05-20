@@ -1,5 +1,6 @@
 // Make query to the backend
-async function jsonQuery( url, data = JSON.stringify({"data": false}) ) {
+// Eg data = JSON.stringify({"data": false}) 
+async function jsonQuery( url, data = '') {
     try {
         const response = await fetch(url, {
             method: 'POST',

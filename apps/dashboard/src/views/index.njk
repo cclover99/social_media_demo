@@ -9,9 +9,16 @@
     admin
 
 
-    <script src="/js/shared.js"></script>
+    <script src="{{ CDN_HOST }}/js/shared.js"></script>
     <script>
+        async function getData(){
+            const data = await jsonQuery("{{ API_HOST }}/admin/get-users")
+            console.log(data)
+        };
 
+
+        getData()
+        
     </script>
 </body>
 </html>

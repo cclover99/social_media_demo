@@ -281,8 +281,7 @@ router.post('/get-posts', async (req, res) => {
             }else{
                 // If no liked posts then don't retrieve anything
                 where.push("1 = 0");
-            }
-
+            };
         };
 
 

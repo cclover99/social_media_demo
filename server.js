@@ -67,6 +67,9 @@ app.disable('x-powered-by');
 app.use(express.urlencoded({ extended: true })); 
 app.use(express.json()); 
 
+apiApp.use(express.urlencoded({ extended: true })); 
+apiApp.use(express.json()); 
+
 
 // Explicitly tell the browser not to cache
 app.use((req, res, next) => {
@@ -132,13 +135,12 @@ apiApp.use('/admin', apiRoutesAdmin);
 apiApp.use('/public', apiRoutesPublic);
 
 
-
-// Mount /cdn
-mainApp.use('/cdn', express.static(path.join(__dirname, '../cdn')));
-
-
 // Root URL, index
 mainApp.get('/', (req, res) => { res.render('index', {"user": req.session.user}) });
+
+
+// vite build files
+cdnApp.use('/dist', express.static(path.join(__dirname, './shared/dist')));
 
 
 // Mount shared
@@ -178,9 +180,6 @@ mainApp.use(express.static(path.join(__dirname, './apps/main/public'), {
 
 
 
-// vite build files
-app.use('/dist', express.static(path.join(__dirname, '../dist')));
-
 
 
 
@@ -207,10 +206,11 @@ cdnApp.use((req, res) => {
     res.status(404).send('404: Asset Not Found');
 });
 
+
 // API invalid request
-apiApp.use((req, res) => {
-    res.status(404).send('Invalid request');
-});
+// apiApp.use((req, res) => {
+//     res.status(404).send('Invalid request');
+// });
 
 
 // 404 handler

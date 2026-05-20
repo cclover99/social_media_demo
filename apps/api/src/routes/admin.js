@@ -12,6 +12,11 @@ const db = require('#config/db');
 require('dotenv').config();
 
 // Functions
+router.post('/get-users', async (req, res) => {
+    let data = await db.query('SELECT * FROM users')
+    console.log(data)
+
+})
 
 // Export routes
 module.exports = router;
