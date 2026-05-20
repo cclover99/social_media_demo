@@ -37,7 +37,10 @@ const mainEnv = nunjucks.configure(
     ...nunjucks_config,
     express: mainApp
 });
+
 mainEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
+mainEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);
+
 
 // Dashboard
 dashboardApp.set('view engine', 'njk');
@@ -47,7 +50,10 @@ const dashboardEnv = nunjucks.configure(
     ...nunjucks_config,
     express: dashboardApp
 });
+
 dashboardEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
+dashboardEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);   
+
 
 
 // Disable etag for fresher pages
