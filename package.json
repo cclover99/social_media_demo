@@ -28,6 +28,7 @@
   "main": "server.js",
   "imports": {
     "#config/*": "./shared/config/*.js",
+    "#cdn/*": "./shared/cdn/*.js",
     "#apps/*": "./apps/*.js"
   }
 }
