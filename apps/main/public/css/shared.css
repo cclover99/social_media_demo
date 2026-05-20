@@ -31,6 +31,29 @@ body > main{
     margin-right: auto;
 }
 
+.site_title{
+    background-color: #0074f09f;
+    border-radius: 5px;
+    padding: 4px;
+    color: black;
+    text-decoration: none;
+    display: block;
+    font-weight: 500;
+    color: white;
+}
+
+button{
+    border: none;
+    border-radius: 5px;
+    padding: 3px 8px;
+    cursor: pointer;
+}
+
+.button_urgent:hover{
+    background-color: #df5367;
+    color: white;
+}
+
 .rightside, .mini_profile{
     position: fixed;
     width: 15%;

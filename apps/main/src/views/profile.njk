@@ -37,10 +37,10 @@
 
         {% if profile.user_id == user.id %}
             <br><br>
-            <button onclick="window.location = '/settings'" class="logout" type="submit">
+            <button onclick="window.location = '/settings'" type="submit">
                 Edit Profile
             </button>
-            <button onclick="window.location = '/settings'" class="logout" type="submit">
+            <button onclick="window.location = '/settings'" type="submit">
                 Settings
             </button>
             
@@ -71,7 +71,8 @@
         {% if profile.user_id == user.id %} 
             <div id="likes-tab" class="tabcontent">
                 <br>
-                Your likes are only visible to you.
+                <span class="feed-info">ⓘ Your likes are only visible to you.</span>
+                
                 {{ posts.dom("likes") }}
             </div>
         {% endif %}

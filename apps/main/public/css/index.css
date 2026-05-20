@@ -2,25 +2,28 @@
     display: grid; 
     grid-template-columns: 1fr 1fr;
     margin-bottom: 30px;
+    gap: 10px;
 }
 
 #feedToggle > button{
-    height: 30px;
-    border-radius: 10px;
+    height: 28px;
+    border-radius: 6px;
 
     border: none;
-    background: none;
-    
 }
 
 #feedToggle > button.active{
     background-color: #007bff;
-    
-    color:white;
-    
+    color:white;   
 }
 
 #feedToggle > button:hover{
-    background-color: #0061c9;
+    background-color: #007bff;
+    color: white;
+}
+
+
+.active-tab{
+    background-color: #5ba3f0;
     color: white;
 }

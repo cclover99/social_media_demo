@@ -67,3 +67,17 @@
     color: #71767b;
     font-weight: normal;
 }
+
+
+.feed-info{
+    margin-left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    background-color: rgb(45, 106, 236);
+    font-size: 0.8rem;
+    color: white;
+    border-radius: 10px;
+    padding: 6px;
+    width: 80%;
+    display: block;
+}

@@ -16,7 +16,7 @@
     </main> 
 
     <section class="desktop-view mini_profile">
-        <a href="/" style="text-align: center;">sitename</a><br><br>
+        <a href="/" class="site_title" style="text-align: center;">Home</a><br>
 
         <div style="text-align: left;">
             {% if user and user.id %}
@@ -28,15 +28,17 @@
                     <a class="nav-button" href="/bookmarks"> Bookmarks </a>
                     <a class="nav-button" href="/notifications"> Notifications </a>
 
-                    <button onclick="window.location = '/settings'" class="logout" type="submit">
-                        Settings
-                    </button>
-                    
-                    <form action="/api/logout" method="POST" style="display: inline;">
-                        <button class="logout" type="submit">
-                            Log Out
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px;">
+                        <button onclick="window.location = '/settings'" type="submit">
+                            Settings
                         </button>
-                    </form>
+                        <form action="/api/logout" method="POST" style="display: contents;">
+                            <button class="logout button_urgent" type="submit">
+                                Log Out
+                            </button>
+                        </form>
+                        
+                    </div>
             {% else %}
                 <div style="display: grid; grid-template-columns: 1fr 1fr;">
                     <button onclick="window.location = '/login';">login</button>
