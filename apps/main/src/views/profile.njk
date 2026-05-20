@@ -33,7 +33,7 @@
         {{ profile.about | default('This user has yet to tell about themselves', true) }} 
     
         <br><br>
-        <a class="follow-indicator" href="/u/{{ profile.username}}/following">X <span>Following</span></a> <a class="follow-indicator" href="/u/{{ profile.username}}/followers">X <span>Followers</span></a>
+        <a class="follow-indicator" href="/u/{{ profile.username}}/following">0 <span>Following</span></a> <a class="follow-indicator" href="/u/{{ profile.username}}/followers">0 <span>Followers</span></a>
 
         {% if profile.user_id == user.id %}
             <br><br>

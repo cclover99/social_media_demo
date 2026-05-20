@@ -257,33 +257,31 @@ router.post('/get-posts', async (req, res) => {
             // await
             // where.push("follower_id");
             // filters.push(req.session.user.id);
-        } 
-        
-        else if (page_type == "comments"){
-            // Comments tab
+        } else if (page_type == "comments"){
+            // Comments section
             where.push("parent_post_id = ?");
             filters.push(post_id);
         }
-        
-        else{
-            // Global feed
-        };
+
+        if (page_type == "replies"){
+            // User's replies
+            where.push("parent_post_id IS NOT NULL");
+        }
+
 
         // If not displaying comments then filter out posts that has parent
-        if (!["comments", "detailed", "following"].includes(page_type))
+        if (!["comments", "detailed", "following", "replies"].includes(page_type))
             where.push("parent_post_id IS NULL");
 
         // Where tail
-        if (where.length){
-            query += ` WHERE ${where.join(' AND ')}`
-        };
+        if (where.length)
+            query += ` WHERE ${where.join(' AND ')}`;
 
         // Shared query tail
         if (page_type != "following")
             query += ` ORDER BY p.publish_date DESC, p.post_id DESC LIMIT 10`;
 
 
-        
         // Mysql query
         const [data] = await db.execute(query, filters);
 
