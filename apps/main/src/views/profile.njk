@@ -138,15 +138,43 @@
         const feed_replies = document.getElementById('feed_replies');
         const feed_likes = document.getElementById('feed_likes');
 
-        const path_name = document.location.pathname;
         
-        if (path_name.endsWith('/replies')){
-            feed_replies.classList.toggle('active-tab');
-        } else if (path_name.endsWith('/likes')){
-            feed_likes.classList.toggle('active-tab');
-        } else{
-            feed_posts.classList.toggle('active-tab');
+        
+        function setState(elm, tabName){
+            tabcontent = document.getElementsByClassName("tabcontent");
+
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            tablinks = document.getElementsByClassName("tablinks");
+
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active-tab");
+            }
+
+            document.getElementById(tabName).style.display = "block";
+            elm.classList.add("active-tab");
         }
+
+        function initState(){
+            const path_name = document.location.pathname;
+
+            if (path_name.endsWith('/replies')){
+                setState(feed_replies, 'replies-tab');
+            } else if (path_name.endsWith('/likes')){
+                setState(feed_likes, 'likes-tab');
+            } else{
+                setState(feed_posts, 'posts-tab');
+            }
+        }
+
+        window.addEventListener('popstate', () => {
+            window.scrollTo({ top: 0 });
+            initState();
+        });
+
+        initState();
     </script>
 
     {% include "partials/tabs.njk" %}
