@@ -19,7 +19,6 @@ const PORT = process.env.PORT
 const mainApp = express();
 const dashboardApp = express();
 const cdnApp = express();
-const apiApp = express();
 
 
 // Nunjucks setup
@@ -66,9 +65,6 @@ app.disable('x-powered-by');
 // Handle form data
 app.use(express.urlencoded({ extended: true })); 
 app.use(express.json()); 
-
-apiApp.use(express.urlencoded({ extended: true })); 
-apiApp.use(express.json()); 
 
 
 // Explicitly tell the browser not to cache
@@ -128,11 +124,7 @@ mainApp.use('/api', apiRoutesPublic);
 
 // Mount subdomain
 dashboardApp.use("/", dashboardRoutes);
-
-
-// Mount APIs
-apiApp.use('/admin', apiRoutesAdmin);
-apiApp.use('/public', apiRoutesPublic);
+dashboardApp.use('/api', apiRoutesAdmin);
 
 
 // Root URL, index
@@ -193,9 +185,6 @@ app.use((req, res, next) => {
         // If it doesn't, send it EXCLUSIVELY to the main site router
         return cdnApp(req, res, next);
 
-    } else if (req.subdomains.includes('api')) {
-        return apiApp(req, res, next);
-
     } else if (req.subdomains.length == 0) {
         return mainApp(req, res, next);
     };
@@ -205,12 +194,6 @@ app.use((req, res, next) => {
 cdnApp.use((req, res) => {
     res.status(404).send('404: Asset Not Found');
 });
-
-
-// API invalid request
-// apiApp.use((req, res) => {
-//     res.status(404).send('Invalid request');
-// });
 
 
 // 404 handler
