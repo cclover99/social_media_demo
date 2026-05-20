@@ -1,0 +1,19 @@
+{% extends "base.njk" %}
+
+{% from "partials/posts.njk" import posts %}
+
+{% block head %}
+    
+    {{ posts.style | safe }}
+
+{% endblock %}
+
+{% block content %}
+    {{ posts.dom("bookmarks") }}
+{% endblock %}
+
+{% block script %}
+
+    {{ posts.script() }}
+
+{% endblock %}

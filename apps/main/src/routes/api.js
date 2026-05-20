@@ -282,6 +282,23 @@ router.post('/get-posts', async (req, res) => {
                 // If no liked posts then don't retrieve anything
                 where.push("1 = 0");
             };
+        } else if (page_type == "bookmarks"){
+            const [bookmarks] = await db.query(`SELECT post_id FROM bookmarks WHERE user_id = ? `, [req.session.user?.id]);
+            const bookmarksArray = bookmarks.map(bookmarks => bookmarks.post_id);
+            
+            if ( bookmarksArray.length > 0){
+                // 1. Create a string of placeholders: "?, ?, ?"
+                const placeholders = bookmarksArray.map(() => "?").join(", ");
+                
+                // 2. Push the IN clause to your where array
+                where.push(`p.post_id IN (${placeholders})`);
+                
+                // 3. Spread the array elements into the filters array
+                filters.push(...bookmarksArray);
+            }else{
+                // If no liked posts then don't retrieve anything
+                where.push("1 = 0");
+            };
         };
 
 
@@ -294,8 +311,10 @@ router.post('/get-posts', async (req, res) => {
             query += ` WHERE ${where.join(' AND ')}`;
 
         // Shared query tail
-        if (page_type != "following")
+        if (page_type != "following"){
             query += ` ORDER BY p.publish_date DESC, p.post_id DESC LIMIT 10`;
+        }
+            
 
 
         // Mysql query

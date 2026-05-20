@@ -344,10 +344,16 @@
                 text_paragraph.style.textAlign = "center";
 
                 
-                if (feed_type == "following" && feed_container.childElementCount == 0){
-                    text_paragraph.innerText = "You're not following anyone.";    
-                } 
-                else{
+                if (feed_type == "following" && feed_container.childElementCount == 0) {
+                    text_paragraph.innerText = "You're not following anyone.";  
+
+                } else if (feed_type == "bookmarks" && feed_container.childElementCount == 0) {
+                    text_paragraph.innerText = "You haven't bookmarked anything."; 
+
+                } else if (feed_type == "likes" && feed_container.childElementCount == 0) {
+                    text_paragraph.innerText = "You haven't liked anything.";    
+
+                } else {
                     text_paragraph.innerText = "You've reached the end.";
                 }
                 

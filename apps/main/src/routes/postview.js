@@ -16,7 +16,6 @@ router.get('/:username/post/:postid', async (req, res) => {
     }else{
         res.render('post', {"user": req.session.user, "post": data});
     }
-
     
 });
 

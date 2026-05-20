@@ -105,6 +105,7 @@ if (process.env.NODE_ENV === 'development')
 const authRoutes = require('./apps/main/src/routes/auth');
 const profileRoutes = require('./apps/main/src/routes/profile');
 const postRoutes = require('./apps/main/src/routes/postview');
+const bookmarkRoutes = require('./apps/main/src/routes/bookmarks');
 
 // API Routes
 const apiRoutesPublic = require('./apps/main/src/routes/api');
@@ -125,6 +126,7 @@ mainApp.use('/', authRoutes);
 // Mount to root
 mainApp.use('/u', profileRoutes);
 mainApp.use('/u', postRoutes);
+mainApp.use('/bookmarks', bookmarkRoutes);
 mainApp.use('/api', apiRoutesPublic);
 
 
