@@ -54,9 +54,9 @@
         <br><br><hr><br>
 
         <div id="feedToggle" class="tab">
-            <button class="tablinks active-tab" onclick="toggleTab(event, 'posts-tab')">Posts</button>
-            <button class="tablinks" onclick="toggleTab(event, 'replies-tab')">Replies</button>
-            {% if profile.user_id == user.id %} <button class="tablinks" onclick="toggleTab(event, 'likes-tab')">Likes</button>{% endif %}
+            <button id="feed_posts" class="tablinks" onclick="toggleTab(event, 'posts-tab'); history.pushState({}, '', '/u/{{ profile.username }}');">Posts</button>
+            <button id="feed_replies" class="tablinks" onclick="toggleTab(event, 'replies-tab'); history.pushState({}, '', '/u/{{ profile.username }}/replies');">Replies</button>
+            {% if profile.user_id == user.id %} <button id="feed_likes" class="tablinks" onclick="toggleTab(event, 'likes-tab'); history.pushState({}, '', '/u/{{ profile.username }}/likes');">Likes</button>{% endif %}
         </div>
 
 
@@ -133,5 +133,24 @@
 
     {{ posts.script({"profile_username": profile.username}) }}
 
+    <script>
+        const feed_posts = document.getElementById('feed_posts');
+        const feed_replies = document.getElementById('feed_replies');
+        const feed_likes = document.getElementById('feed_likes');
+
+        const path_name = document.location.pathname;
+        
+        if (path_name.endsWith('/replies')){
+            feed_replies.classList.toggle('active-tab');
+        } else if (path_name.endsWith('/likes')){
+            feed_likes.classList.toggle('active-tab');
+        } else{
+            feed_posts.classList.toggle('active-tab');
+        }
+    </script>
+
     {% include "partials/tabs.njk" %}
+
+
 {% endblock %}
+

@@ -14,18 +14,22 @@ router.get('/', async (req, res) => {
 
 
 // Display the profile page
-router.get('/:username', async (req, res) => {
-    const { username } = req.params;
+router.get(['/:username/', '/:username/likes', '/:username/replies'], async (req, res) => {
+    const { username, page_type } = req.params;
 
     let [data] = (await db.execute('SELECT * from users WHERE username = ?', [username]))[0] || {};
 
-    // Omit data that shouldn't be visible on profile
-    if (data){
-        delete data["password_hash"]
-        delete data["email"]
-    }
+    if (req.path.endsWith('/likes') && ( data.user_id != req.session.user?.id )){
+        return res.redirect(`/u/${username}`);
+    };
 
-    res.render('profile', {"user": req.session.user, "profile": data});
+    // Omit data that shouldn't be visible on profile anyways
+    if (data){
+        delete data["password_hash"];
+        delete data["email"];
+    };
+
+    return res.render('profile', {"user": req.session.user, "profile": data});
 });
 
 // Display Followers

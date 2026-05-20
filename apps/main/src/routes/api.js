@@ -230,7 +230,7 @@ router.post('/get-posts', async (req, res) => {
     };
     
     try {
-        if (author_name) {
+        if (author_name && page_type != "likes") {
             // Get certain author's posts
             where.push("u.username = ?");
             filters.push(author_name);
@@ -265,6 +265,24 @@ router.post('/get-posts', async (req, res) => {
         if (page_type == "replies") {
             // User's replies
             where.push("parent_post_id IS NOT NULL");
+        } else if (page_type == "likes" && author_name) {
+            const [likes] = await db.query(`SELECT post_id FROM likes WHERE user_id = ( SELECT user_id FROM users WHERE username = ? ) `, [author_name]);
+            const likesArray = likes.map(likes => likes.post_id);
+            
+            if ( likesArray.length > 0){
+                // 1. Create a string of placeholders: "?, ?, ?"
+                const placeholders = likesArray.map(() => "?").join(", ");
+                
+                // 2. Push the IN clause to your where array
+                where.push(`p.post_id IN (${placeholders})`);
+                
+                // 3. Spread the array elements into the filters array
+                filters.push(...likesArray);
+            }else{
+                // If no liked posts then don't retrieve anything
+                where.push("1 = 0");
+            }
+
         };
 
 
