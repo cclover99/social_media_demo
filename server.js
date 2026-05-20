@@ -2,9 +2,11 @@ const path = require('path');
 
 const express = require('express');
 const session = require('express-session');
+const cors = require('cors');
 
 const nunjucks = require('nunjucks');
 const helmet = require('helmet');
+
 
 const db = require('./shared/config/db');
 const SQLSessionStore = require('./shared/config/sessionStore');
@@ -110,6 +112,10 @@ const apiRoutesAdmin = require('./apps/api/src/routes/admin');
 
 // Subdomain Routes
 const dashboardRoutes = require('./apps/dashboard/src/routes/dashboard');
+
+app.use(cors({
+    origin: ((process.env.NODE_ENV == 'development') ? `http://localhost:${PORT}` : process.env.PROD_URL)
+})); 
 
 
 // Mount global routes

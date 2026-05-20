@@ -96,7 +96,7 @@
                 if (m.split(".")[1] == "mp4" ){
                     media_dom = document.createElement("video-player");
 
-                    media_dom.innerHTML = inlineVideoPlayer(m);
+                    media_dom.innerHTML = inlineVideoPlayer(`{{ CDN_HOST }}/media/${m}`);
                 }else{
                     media_dom = document.createElement("img");
                     media_dom.src = `{{ CDN_HOST }}/media/${m}`;
