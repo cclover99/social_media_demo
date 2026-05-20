@@ -24,9 +24,9 @@
                     <a class="profile_link" href="/u/{{ user.username }}"><img src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}"> {{ user.username }}</a>
 
                     
-                    <a class="nav-button" href="/chat"> Messages </a>
+                    <!-- <a class="nav-button" href="/chat"> Messages </a> -->
                     <a class="nav-button" href="/bookmarks"> Bookmarks </a>
-                    <a class="nav-button" href="/notifications"> Notifications </a>
+                    <!-- <a class="nav-button" href="/notifications"> Notifications </a> -->
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px;">
                         <button onclick="window.location = '/settings'" type="submit">
