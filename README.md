@@ -14,3 +14,17 @@ git clone https://github.com/ccloverdev/social_media_demo.git
 ```
 docker-compose up -d --build
 ```
+
+
+---
+
+<br>
+
+### Planned Features
+- [ ] Docker container CI/CD pipeline
+- [ ] Decoupled object storage with Cloudflare R2
+- [ ] Private DMs
+- [ ] Admin dashboard
+- [ ] Custom video player
+- [ ] 2fa login
+- [ ] User notifications
