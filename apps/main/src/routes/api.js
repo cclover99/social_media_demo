@@ -230,19 +230,17 @@ router.post('/get-posts', async (req, res) => {
     };
     
     try {
-        if (author_name){
+        if (author_name) {
             // Get certain author's posts
             where.push("u.username = ?");
             filters.push(author_name);
-        }
-        
-        else if (page_type == "detailed"){
+
+        } else if (page_type == "detailed") {
             // Detailed post view, load a single post
             where.push("p.post_id = ?");
             filters.push(post_id);
-        } 
-        
-        else if (page_type == "following" && req.session.user?.id){
+
+        } else if (page_type == "following" && req.session.user?.id) {
             // Get the following list of the author
             const [[following]] = await db.query('SELECT following_id FROM follows WHERE follower_id = ?', req.session.user.id);
 
@@ -257,16 +255,17 @@ router.post('/get-posts', async (req, res) => {
             // await
             // where.push("follower_id");
             // filters.push(req.session.user.id);
-        } else if (page_type == "comments"){
+
+        } else if (page_type == "comments") {
             // Comments section
             where.push("parent_post_id = ?");
             filters.push(post_id);
-        }
+        };
 
-        if (page_type == "replies"){
+        if (page_type == "replies") {
             // User's replies
             where.push("parent_post_id IS NOT NULL");
-        }
+        };
 
 
         // If not displaying comments then filter out posts that has parent
@@ -291,7 +290,7 @@ router.post('/get-posts', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch posts' });
-    }
+    };
 });
 
 

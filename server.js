@@ -19,6 +19,7 @@ const PORT = process.env.PORT
 const mainApp = express();
 const dashboardApp = express();
 const cdnApp = express();
+const apiApp = express();
 
 
 // Nunjucks setup
@@ -26,7 +27,8 @@ const nunjucks_config = {
     autoescape: true,
     // watch: true,
     noCache: true
-}
+};
+
 // Main app
 mainApp.set('view engine', 'njk');
 mainApp.set('views', path.join(__dirname, './apps/main/src/views'));
@@ -92,28 +94,17 @@ if (process.env.NODE_ENV === 'development')
     app.set('subdomain offset', 1);
 
 
-
-function subdomainHandler(subdomainName, router) {
-    return (req, res, next) => {    
-        console.log(req.subdomains) 
-        if (req.subdomains.includes(subdomainName)) {
-            router(req, res, next);
-        } else {
-            next();
-        }
-    };
-};
-
-
 // Import routes
 const authRoutes = require('./apps/main/src/routes/auth');
 const profileRoutes = require('./apps/main/src/routes/profile');
 const postRoutes = require('./apps/main/src/routes/postview');
-const apiRoutes = require('./apps/main/src/routes/api');
+
+// API Routes
+const apiRoutesPublic = require('./apps/main/src/routes/api');
+const apiRoutesAdmin = require('./apps/api/src/routes/admin');
 
 // Subdomain Routes
 const dashboardRoutes = require('./apps/dashboard/src/routes/dashboard');
-const dashboardApiRoutes = require('./apps/dashboard/src/routes/api');
 
 
 // Mount global routes
@@ -123,12 +114,17 @@ mainApp.use('/', authRoutes);
 // Mount to root
 mainApp.use('/u', profileRoutes);
 mainApp.use('/u', postRoutes);
-mainApp.use('/api', apiRoutes);
+mainApp.use('/api', apiRoutesPublic);
 
 
 // Mount subdomain
 dashboardApp.use("/", dashboardRoutes);
-dashboardApp.use("/api", dashboardApiRoutes);
+
+
+// Mount APIs
+apiApp.use('/admin', apiRoutesAdmin);
+apiApp.use('/public', apiRoutesPublic);
+
 
 
 // Mount /cdn
@@ -187,10 +183,15 @@ app.use((req, res, next) => {
     if (req.subdomains.includes('admin')) {
         // If the URL has 'dashboard', send it EXCLUSIVELY to the dashboard router
         return dashboardApp(req, res, next);
+
     } else if (req.subdomains.includes('cdn')) {
         // If it doesn't, send it EXCLUSIVELY to the main site router
         return cdnApp(req, res, next);
-    } else if (req.subdomains.length == 0){
+
+    } else if (req.subdomains.includes('api')) {
+        return apiApp(req, res, next);
+
+    } else if (req.subdomains.length == 0) {
         return mainApp(req, res, next);
     };
 });
@@ -198,6 +199,11 @@ app.use((req, res, next) => {
 // CDN 404 handler
 cdnApp.use((req, res) => {
     res.status(404).send('404: Asset Not Found');
+});
+
+// API invalid request
+apiApp.use((req, res) => {
+    res.status(404).send('Invalid request');
 });
 
 
