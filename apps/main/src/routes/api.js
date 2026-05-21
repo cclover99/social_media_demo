@@ -248,17 +248,17 @@ router.post('/get-posts', async (req, res) => {
             filters.push(post_id);
 
         } else if (page_type == "following" && req.session.user?.id) {
-            console.log('load following')
             // Get the following list of the author
-            const [[following]] = await db.query('SELECT following_id FROM follows WHERE follower_id = ?', req.session.user.id);
-            console.log(following)
-            if (following){
-                where.push("author_id = ?");
-                filters.push(post_id);
-            }else{
-                res.json([]);
-                return;
-            }
+            
+            where.push(`
+                p.author_id IN (
+                    SELECT following_id
+                    FROM follows
+                    WHERE follower_id = ?
+                )    
+            `)
+            filters.push(req.session.user.id)
+         
             
             // await
             // where.push("follower_id");
@@ -311,6 +311,7 @@ router.post('/get-posts', async (req, res) => {
 
 
         // Mysql query
+        // console.log(query, filters)
         const [data] = await db.execute(query, filters);
 
         // Send back the data if exists, if not send empty
