@@ -444,7 +444,7 @@ router.post('/like-post', async (req, res) => {
 
     const {post_id} = req.body;
 
-    const [[is_liked]] = await db.query("SELECT post_id FROM likes WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
+    const [[is_liked]] = await db.query("SELECT 1 FROM likes WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
 
     if (!is_liked){
         // If not liked then like
@@ -487,23 +487,30 @@ router.post('/follow-user', async (req, res) => {
 
     const {user_id} = req.body;
 
-    const [[is_following]] = await db.query("SELECT post_id FROM follows WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
+    let is_following = false;
+    if (req.session.user) {
+        const [rows] = await db.query("SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?", [req.session.user.id, user_id]);
+
+        is_following = rows.length > 0;
+    }
+    
+    // const [[is_following]] = await db.query("SELECT 1 FROM follows WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
 
     if (!is_following){
         // If not following then follow
-        await db.query('INSERT INTO likes (user_id, post_id) VALUES (?, ?)', [req.session.user.id, post_id]);
+        await db.query('INSERT INTO follows (follower_id, following_id) VALUES (?, ?)', [req.session.user.id, user_id]);
 
         // Insert follow
         await db.query('UPDATE users SET following_count = following_count + 1 WHERE user_id = ?', [req.session.user.id]);
-        await db.query('UPDATE users SET follower_count = following_count + 1 WHERE user_id = ?', [user_id]);
+        await db.query('UPDATE users SET follower_count = follower_count + 1 WHERE user_id = ?', [user_id]);
         res.json({ "ok": true });
     }else{
         // If not unfollow
-        await db.query('DELETE FROM likes WHERE user_id = ? AND post_id = ?;', [req.session.user.id, post_id]);
+        await db.query('DELETE FROM follows WHERE follower_id = ? AND following_id = ?;', [req.session.user.id, user_id]);
 
         // Insert unfollow
         await db.query('UPDATE users SET following_count = following_count - 1 WHERE user_id = ?', [req.session.user.id]);
-        await db.query('UPDATE users SET follower_count = following_count - 1 WHERE user_id = ?', [user_id]);
+        await db.query('UPDATE users SET follower_count = follower_count - 1 WHERE user_id = ?', [user_id]);
         res.json({ "ok": true });
     };
 

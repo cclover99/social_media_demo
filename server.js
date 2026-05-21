@@ -86,8 +86,7 @@ app.use(session({
     cookie: { 
         maxAge: 1000 * 60 * 60 * 24 * 7, // Remember for 7 days
         //httpsOnly: true // Browser only
-        httpOnly: true, // development test
-        secure: false // for development
+        httpOnly: true // development test
     } 
 }));
 
@@ -99,7 +98,6 @@ app.get(/^\/index(\.html)?$/, (req, res) => { res.redirect(301, '/') });
 // If in localhost set the subdomain offset
 if (process.env.NODE_ENV === 'development') 
     app.set('subdomain offset', 1);
-
 
 // Import routes
 const authRoutes = require('./apps/main/src/routes/auth');
@@ -114,16 +112,12 @@ const apiRoutesAdmin = require('./apps/api/src/routes/admin');
 // Subdomain Routes
 const dashboardRoutes = require('./apps/dashboard/src/routes/dashboard');
 
-app.use(cors({
-    origin: ((process.env.NODE_ENV == 'development') ? `http://localhost:${PORT}` : process.env.PROD_URL)
-})); 
+// Enable CORS origin globally
+app.use(cors({ origin: ((process.env.NODE_ENV == 'development') ? `http://localhost:${PORT}` : process.env.PROD_URL) })); 
 
 
-// Mount global routes
+// Mount main routes
 mainApp.use('/', authRoutes);
-
-
-// Mount to root
 mainApp.use('/u', profileRoutes);
 mainApp.use('/u', postRoutes);
 mainApp.use('/bookmarks', bookmarkRoutes);

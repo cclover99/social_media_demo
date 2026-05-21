@@ -29,11 +29,12 @@
         
         <br>
         <h2>{{ profile.username }}</h2>
+		{{ is_following }}
         
         {{ profile.about | default('This user has yet to tell about themselves', true) }} 
     
         <br><br>
-        <a class="follow-indicator" href="/u/{{ profile.username}}/following">0 <span>Following</span></a> <a class="follow-indicator" href="/u/{{ profile.username}}/followers">0 <span>Followers</span></a>
+        <a class="follow-indicator" href="/u/{{ profile.username}}/following">{{ profile.following_count }} <span>Following</span></a> <a class="follow-indicator" href="/u/{{ profile.username}}/followers">{{ profile.follower_count }} <span>Followers</span></a>
 
         {% if profile.user_id == user.id %}
             <br><br>
@@ -47,7 +48,9 @@
         {% endif %}
 
         {% if profile.user_id != user.id %}
-            <br><br><button>Follow</button> <button>Message</button>
+            <br><br>
+			<button id="follow">{% if is_following %}Following{% else %}Follow{% endif %}</button> 
+			<button>Message</button>
         {% endif %}
 
         
@@ -88,6 +91,8 @@
 {% endblock %}
 
 {% block script %}
+
+	
     {% if profile and profile.user_id == user.id %}
             <script>
                 document.getElementById("updatePFP").onclick = function(){
@@ -173,6 +178,46 @@
         });
 
         initState();
+    </script>
+
+    <script>
+		const follow_button = document.getElementById('follow');
+
+		follow_button.onclick = async function(){
+			if (follow_button.innerText == "Follow"){
+				// Request and return if un ok
+				const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
+				if (!result?.ok == true){ return };
+
+				follow_button.innerText = "Following"
+
+				// Add mouseover functions for UX
+				follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
+				follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };
+			}else{
+				// Request and return if un ok
+				const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
+				if (!result?.ok == true){ return };
+
+				// Remove mouseover functions
+				follow_button.onmouseover = null;
+				follow_button.onmouseleave = null;
+
+				// Update Text
+				follow_button.innerText = "Follow"
+			};
+
+			
+
+			
+			
+		};
+
+		// If following on page load at mouse over functions
+		if (follow_button.innerText != "Follow"){	
+			follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
+			follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };	
+		}
     </script>
 
     {% include "partials/tabs.njk" %}

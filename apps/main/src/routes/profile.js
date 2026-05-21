@@ -19,7 +19,14 @@ router.get(['/:username/', '/:username/likes', '/:username/replies'], async (req
 
     let [data] = (await db.execute('SELECT * from users WHERE username = ?', [username]))[0] || {};
 
-    if (req.path.endsWith('/likes') && ( data.user_id != req.session.user?.id )){
+    let is_following = false;
+    if (req.session.user) {
+        const [rows] = await db.query("SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?", [req.session.user.id, data.user_id]);
+
+        is_following = rows.length > 0;
+    };
+
+    if (req.path.endsWith('/likes') && ( data?.user_id != req.session.user?.id )){
         return res.redirect(`/u/${username}`);
     };
 
@@ -29,7 +36,7 @@ router.get(['/:username/', '/:username/likes', '/:username/replies'], async (req
         delete data["email"];
     };
 
-    return res.render('profile', {"user": req.session.user, "profile": data});
+    return res.render('profile', {"user": req.session.user, "profile": data, "is_following": is_following });
 });
 
 // Display Followers
