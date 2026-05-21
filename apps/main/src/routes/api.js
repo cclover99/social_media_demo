@@ -18,7 +18,7 @@ require('dotenv').config();
 
 const profileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../cdn/profile_images/'));
+    cb(null, path.join('shared/cdn/profile_images/'));
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
@@ -29,7 +29,7 @@ const profileStorage = multer.diskStorage({
 
 const postStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../cdn/media/'));
+    cb(null, path.join('shared/cdn/media/'));
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
@@ -166,7 +166,7 @@ router.post('/update-pfp', profileUpload.single('picture'), async (req, res) => 
 
     // Delete old picture if exists
     let old_filename = ((await db.query('SELECT profile_pic FROM users WHERE user_id = ?', [req.session.user.id]))[0][0])["profile_pic"];
-    if (old_filename) try{ await fs.unlink(path.join(__dirname, '../../cdn/profile_images/', old_filename))} catch{ console.log('Error deleting user profile picture')};
+    if (old_filename) try{ await fs.unlink(path.join('shared/cdn/profile_images/', old_filename))} catch{ console.log('Error deleting user profile picture')};
 
     await db.query('UPDATE users SET profile_pic = ? WHERE user_id = ?', [image_filename, req.session.user.id]);
 
@@ -248,9 +248,10 @@ router.post('/get-posts', async (req, res) => {
             filters.push(post_id);
 
         } else if (page_type == "following" && req.session.user?.id) {
+            console.log('load following')
             // Get the following list of the author
             const [[following]] = await db.query('SELECT following_id FROM follows WHERE follower_id = ?', req.session.user.id);
-
+            console.log(following)
             if (following){
                 where.push("author_id = ?");
                 filters.push(post_id);
@@ -376,7 +377,7 @@ router.post('/delete-post', async (req, res) => {
     if (media?.length){
         for (const m of JSON.parse(media[0])){
             try{ 
-                await fs.unlink(path.join(__dirname, '../../cdn/media/', m));
+                await fs.unlink(path.join('shared/cdn/media/', m));
             } catch{ 
                 console.log('Error deleting post media');
             };
@@ -413,7 +414,7 @@ router.post('/delete-account', async (req, res) => {
     if (media?.length){
         for (const m of JSON.parse(media[0])){
             try{ 
-                await fs.unlink(path.join(__dirname, '../../cdn/media/', m));
+                await fs.unlink(path.join('shared/cdn/media/', m));
             } catch{ 
                 console.log('Error deleting post media');
             };
