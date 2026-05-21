@@ -51,11 +51,12 @@ router.get('/:username/followers', async (req, res) => {
         delete data["email"]
     }
 
-    res.render('profile', {"user": req.session.user, "profile": data});
+    res.redirect(`/u/${username}`)
+    // res.render('profile', {"user": req.session.user, "profile": data});
 });
 
 // Display Follows
-router.get('/:username/follows', async (req, res) => {
+router.get('/:username/following', async (req, res) => {
     const { username } = req.params;
 
     let [data] = (await db.execute('SELECT * from users WHERE username = ?', [username]))[0] || {};
@@ -66,7 +67,8 @@ router.get('/:username/follows', async (req, res) => {
         delete data["email"]
     }
 
-    res.render('profile', {"user": req.session.user, "profile": data});
+    res.redirect(`/u/${username}`)
+    // res.render('profile', {"user": req.session.user, "profile": data});
 });
 
 // Export routes
