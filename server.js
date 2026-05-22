@@ -69,13 +69,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 
 
-// Explicitly tell the browser not to cache
-app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private, proxy-revalidate');
-    next();
-});
-
-
 
 // Define Session
 app.use(session({
@@ -98,6 +91,7 @@ app.get(/^\/index(\.html)?$/, (req, res) => { res.redirect(301, '/') });
 // If in localhost set the subdomain offset
 if (process.env.NODE_ENV === 'development') 
     app.set('subdomain offset', 1);
+
 
 // Import routes
 const authRoutes = require('./apps/main/src/routes/auth');
@@ -130,7 +124,10 @@ dashboardApp.use('/api', apiRoutesAdmin);
 
 
 // Root URL, index
-mainApp.get('/', (req, res) => { res.render('index', {"user": req.session.user}) });
+mainApp.get('/', (req, res) => { 
+    res.set('Cache-Control', 'private, max-age=0');
+    res.render('index', {"user": req.session.user}) 
+});
 
 
 // vite build files
