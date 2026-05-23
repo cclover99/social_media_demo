@@ -13,7 +13,7 @@
 - [ ] Admin dashboard
 - [ ] Custom video player
 - [ ] 2fa login
-- [ ] User notifications
+- [ ] Notification handler
 - [ ] Redis cache
 
 <br>
