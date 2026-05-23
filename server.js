@@ -151,6 +151,7 @@ cdnApp.use(express.static(path.join(__dirname, './apps/shared/public'), {
     }
 }));
 
+
 // Mount /public, serves everything in the 'public' folder.
 mainApp.use(express.static(path.join(__dirname, './apps/main/public'), { 
     dotfiles: 'deny',
@@ -168,10 +169,6 @@ mainApp.use(express.static(path.join(__dirname, './apps/main/public'), {
 }));
 
 
-
-
-
-
 // Connect all the routers
 app.use((req, res, next) => {
     if (req.subdomains.includes('admin') && process.env.NODE_ENV == "development") {
@@ -186,6 +183,7 @@ app.use((req, res, next) => {
         return mainApp(req, res, next);
     };
 });
+
 
 // CDN 404 handler
 cdnApp.use((req, res) => {
