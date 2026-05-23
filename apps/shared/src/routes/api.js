@@ -298,7 +298,7 @@ router.post('/create-post', mediaService.postUpload.array('media', 4), mediaServ
     };
 
     await db.execute(query, parameters);
-    res.redirect(referer);
+    res.redirect(referer || '/');
 
 });
 
@@ -402,7 +402,6 @@ router.post('/follow-user', async (req, res) => {
         is_following = rows.length > 0;
     }
     
-    // const [[is_following]] = await db.query("SELECT 1 FROM follows WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
 
     if (!is_following){
         // If not following then follow
