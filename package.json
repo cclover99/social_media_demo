@@ -28,8 +28,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "imports": {
-    "#config/*": "./shared/config/*.js",
-    "#cdn/*": "./shared/cdn/*.js",
+    "#config/*": "./apps/shared/config/*.js",
+    "#shared/*": "./apps/shared/*.js",
     "#apps/*": "./apps/*.js"
   }
 }

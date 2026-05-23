@@ -8,8 +8,8 @@ const nunjucks = require('nunjucks');
 const helmet = require('helmet');
 
 
-const db = require('./shared/config/db');
-const SQLSessionStore = require('./shared/config/sessionStore');
+const db = require('#config/db');
+const SQLSessionStore = require('#config/sessionStore');
 require('dotenv').config();
 
 
@@ -100,8 +100,7 @@ const postRoutes = require('./apps/main/src/routes/postview');
 const bookmarkRoutes = require('./apps/main/src/routes/bookmarks');
 
 // API Routes
-const apiRoutesPublic = require('./apps/main/src/routes/api');
-const apiRoutesAdmin = require('./apps/api/src/routes/admin');
+const apiRoutesPublic = require('./apps/shared/src/routes/api');
 
 // Subdomain Routes
 const dashboardRoutes = require('./apps/dashboard/src/routes/dashboard');
@@ -120,7 +119,6 @@ mainApp.use('/api', apiRoutesPublic);
 
 // Mount subdomain
 dashboardApp.use("/", dashboardRoutes);
-dashboardApp.use('/api', apiRoutesAdmin);
 
 
 // Root URL, index
@@ -131,11 +129,11 @@ mainApp.get('/', (req, res) => {
 
 
 // vite build files
-cdnApp.use('/dist', express.static(path.join(__dirname, './shared/dist')));
+cdnApp.use('/dist', express.static(path.join(__dirname, './apps/shared/dist')));
 
 
 // Mount shared
-cdnApp.use(express.static(path.join(__dirname, './shared/cdn'), { 
+cdnApp.use(express.static(path.join(__dirname, './apps/shared/public'), { 
     dotfiles: 'deny',
     index: false,
     redirect: false,

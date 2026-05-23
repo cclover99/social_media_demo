@@ -1,86 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const multer = require('multer');
-const { fileTypeFromFile } = require('file-type');
-
-const fs = require('fs/promises');
-const path = require('path');
-const crypto = require('crypto');
-
 const bcrypt = require('bcrypt');
 
 const db = require('#config/db');
+const mediaService = require('#shared/src/services/mediaService');
 
 require('dotenv').config();
-
-// Functions
-
-const profileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join('shared/cdn/profile_images/'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const name = crypto.randomBytes(16).toString('hex'); // 32 chars
-    cb(null, `${name}${ext}`);
-  }
-});
-
-const postStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join('shared/cdn/media/'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const name = crypto.randomBytes(16).toString('hex'); // 32 chars
-    cb(null, `${name}${ext}`);
-  }
-});
-
-const profileUpload = multer({ 
-    storage: profileStorage,
-    limits: {
-        // 5MB max limit per pfp
-        fileSize: 5 * 1024 * 1024
-    },
-    fileFilter: (req, file, cb) => {
-        const allowedExtensions = ['.jpg', '.jpeg', '.png'];
-        const ext = path.extname(file.originalname).toLowerCase();
-        
-        // Check file MIME type
-        const allowedMimeTypes = ['image/jpeg', 'image/png'];
-
-        // Apply constraints
-        if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Invalid file type. Only images and videos are allowed.'), false); // Reject
-        }
-    }
-});
-
-const mediaUpload = multer({ 
-    storage: postStorage,
-    limits: {
-        // 50MB max limit regardless of media type
-        fileSize: 50 * 1024 * 1024
-    },
-    fileFilter: (req, file, cb) => {
-        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mkv', '.webm'];
-        const ext = path.extname(file.originalname).toLowerCase();
-        
-        // Check file MIME type
-        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/x-matroska', 'video/webm'];
-
-        // Apply constraints
-        if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Invalid file type. Only images and videos are allowed.'), false); // Reject
-        }
-    }
-});
 
 // Routes
 
@@ -100,6 +26,7 @@ router.post('/register', async (req, res) => {
 
     req.session.user = {
         "id": user.user_id,
+        "displayname": "",
         "username": user.username,
         "displayName": user.displayName || null
     };
@@ -107,7 +34,6 @@ router.post('/register', async (req, res) => {
     req.session.save();
 
     res.redirect('/');
-
 });
 
 
@@ -159,14 +85,20 @@ router.post('/logout', async (req, res) => {
 
 
 // Update Profile Picutre
-router.post('/update-pfp', profileUpload.single('picture'), async (req, res) => {
+router.post('/update-pfp', mediaService.profileUpload.single('picture'), async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
 
     const image_filename = req.file.filename;
 
     // Delete old picture if exists
     let old_filename = ((await db.query('SELECT profile_pic FROM users WHERE user_id = ?', [req.session.user.id]))[0][0])["profile_pic"];
-    if (old_filename) try{ await fs.unlink(path.join('shared/cdn/profile_images/', old_filename))} catch{ console.log('Error deleting user profile picture')};
+    if (old_filename){
+        try 
+            { await mediaService.deteleProfilePicture(old_filename) }
+        catch 
+            { console.log('Error deleting user profile picture'); return; };
+    };
+        
 
     await db.query('UPDATE users SET profile_pic = ? WHERE user_id = ?', [image_filename, req.session.user.id]);
 
@@ -220,7 +152,7 @@ router.post('/get-posts', async (req, res) => {
             FROM posts p 
             JOIN users u ON p.author_id = u.user_id 
         `;
-    }
+    };
 
     
 
@@ -256,8 +188,8 @@ router.post('/get-posts', async (req, res) => {
                     FROM follows
                     WHERE follower_id = ?
                 )    
-            `)
-            filters.push(req.session.user.id)
+            `);
+            filters.push(req.session.user.id);
          
             
             // await
@@ -325,7 +257,7 @@ router.post('/get-posts', async (req, res) => {
 
 
 // Create post
-router.post('/create-post', mediaUpload.array('media', 6), async (req, res) => {
+router.post('/create-post', mediaService.postUpload.array('media', 6), async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
     const {content} = req.body;
 
@@ -378,9 +310,10 @@ router.post('/delete-post', async (req, res) => {
     if (media?.length){
         for (const m of JSON.parse(media[0])){
             try{ 
-                await fs.unlink(path.join('shared/cdn/media/', m));
+                await mediaService.deletePostMedia(m);
             } catch{ 
                 console.log('Error deleting post media');
+                return;
             };
         };
     };
@@ -406,38 +339,6 @@ router.post('/delete-account', async (req, res) => {
 
     const user_id = req.session.user.id;
 
-    let media = [];
-
-    // Get and delete posts, remove any likes and subposts associated with posts
-    // code
-
-    // Get and Delete media
-    if (media?.length){
-        for (const m of JSON.parse(media[0])){
-            try{ 
-                await fs.unlink(path.join('shared/cdn/media/', m));
-            } catch{ 
-                console.log('Error deleting post media');
-            };
-        };
-    };
-
-    if (req.session.user?.id == author_id){
-        await db.query('DELETE FROM posts WHERE post_id = ?', [post_id]);
-    }else{
-        res.status(401).json({ error: 'Forbidden' })
-    };
-
-    // Get and delete user profile picutre
-    // code
-
-    // Get and delete follows and update related follows
-    // 
-
-    // Get and delete likes
-    // code
-
-    // res.redirect(req.get('Referrer') || '/');
     res.redirect('/');
 });
 
