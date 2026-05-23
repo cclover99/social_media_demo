@@ -90,7 +90,6 @@ exports.postUpload = multer({
         if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(file.mimetype)) {
             cb(null, true);
         } else {
-            console.log('reject')
             cb(new Error('Invalid file type. Only images and videos are allowed.'), false); // Reject
         }
     }
@@ -120,11 +119,9 @@ exports.verifyFileType = (uploadType) => {
 
         // Helper function to clean up all files on disk if fail
         const cleanupAllFiles = async () => {
-                for (const f of filesToCheck) {
-                     console.log('deleting files')
-                    console.log(f.path)
-                    if (fsSync.existsSync(f.path)) 
-                        await fs.unlink(f.path);
+            for (const f of filesToCheck) {
+                if (fsSync.existsSync(f.path)) 
+                    await fs.unlink(f.path);
             };
         };
         
