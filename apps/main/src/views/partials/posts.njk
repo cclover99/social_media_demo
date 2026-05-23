@@ -160,7 +160,13 @@
                 deleteButton.onclick = async function(){
                     const result = await jsonQuery('/api/delete-post', JSON.stringify({"post_id": data.post_id}));
                     if (result?.ok == true){ 
-                        history.back();
+                        if (document.referrer) {
+                            // Redirect to the exact previous URL, forcing a fresh load
+                            window.location.replace(document.referrer);
+                        } else {
+                            // Fallback in case there is no referrer history
+                            window.history.back();
+                        };
                     };  
                 };
 
