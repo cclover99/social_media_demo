@@ -14,6 +14,7 @@
 - [ ] Custom video player
 - [ ] 2fa login
 - [ ] User notifications
+- [ ] Redis cache
 
 <br>
 
