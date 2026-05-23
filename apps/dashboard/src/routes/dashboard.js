@@ -26,7 +26,6 @@ router.get('/', async (req, res) => {
     const user_fields = 'user_id, username, display_name, email, register_date, profile_pic, about, follower_count, following_count';
     const [users] = await db.query(`SELECT ${user_fields} FROM users`);
 
-    console.log(users)
 
     return res.render('../views/index', {"user": req.session.user, "data": users});
 

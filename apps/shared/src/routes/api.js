@@ -85,7 +85,7 @@ router.post('/logout', async (req, res) => {
 
 
 // Update Profile Picutre
-router.post('/update-pfp', mediaService.profileUpload.single('picture'), async (req, res) => {
+router.post('/update-pfp', mediaService.profileUpload.single('picture'), mediaService.verifyFileType('profile'), async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
 
     const image_filename = req.file.filename;
@@ -257,7 +257,7 @@ router.post('/get-posts', async (req, res) => {
 
 
 // Create post
-router.post('/create-post', mediaService.postUpload.array('media', 6), async (req, res) => {
+router.post('/create-post', mediaService.postUpload.array('media', 4), mediaService.verifyFileType('post'), async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
     const {content} = req.body;
 
