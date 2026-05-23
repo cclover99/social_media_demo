@@ -302,6 +302,7 @@ router.post('/create-post', mediaService.postUpload.array('media', 6), async (re
 
 });
 
+
 router.post('/delete-post', async (req, res) => {
     const {post_id} = req.body;
 
@@ -334,6 +335,7 @@ router.post('/delete-post', async (req, res) => {
     };
 });
 
+
 router.post('/delete-account', async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
 
@@ -341,6 +343,7 @@ router.post('/delete-account', async (req, res) => {
 
     res.redirect('/');
 });
+
 
 router.post('/like-post', async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
@@ -364,6 +367,7 @@ router.post('/like-post', async (req, res) => {
     };
 });
 
+
 router.post('/bookmark-post', async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
 
@@ -384,6 +388,7 @@ router.post('/bookmark-post', async (req, res) => {
     };
     
 });
+
 
 router.post('/follow-user', async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
