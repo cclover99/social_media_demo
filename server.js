@@ -174,7 +174,7 @@ mainApp.use(express.static(path.join(__dirname, './apps/main/public'), {
 
 // Connect all the routers
 app.use((req, res, next) => {
-    if (req.subdomains.includes('admin')) {
+    if (req.subdomains.includes('admin') && process.env.NODE_ENV == "development") {
         // If the URL has 'dashboard', send it EXCLUSIVELY to the dashboard router
         return dashboardApp(req, res, next);
 

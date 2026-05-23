@@ -17,11 +17,19 @@ router.get('/', async (req, res) => {
     const mainUrl = hostParts.join('.');
     const port = req.socket?.localPort ? `:${req.socket?.localPort}` : '';
     
-    if (req.session.user?.isAdmin || true) {
-        return res.render('../views/index', {"user": req.session.user})
-    } else {
+    // If not admin then return
+    if (!req.session.user?.isAdmin && false){
         return res.redirect(`${req.protocol}://${mainUrl}${port}/login`);
-    };
+    }
+
+    // Select everything except password_hash
+    const user_fields = 'user_id, username, display_name, email, register_date, profile_pic, about, follower_count, following_count';
+    const [users] = await db.query(`SELECT ${user_fields} FROM users`);
+
+    console.log(users)
+
+    return res.render('../views/index', {"user": req.session.user, "data": users});
+
 });
 
 // Export routes

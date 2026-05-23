@@ -4,21 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        /* --- Global Table Container (Prevents overflow on small screens) --- */
+        .table-container {
+            margin-top: 10px;
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background-color: orange;
+        }
+
+        /* --- Base Table Styling --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: system-ui;
+            text-align: left;
+            background-color: #ffffff;
+        }
+
+        /* --- Table Header (Thead) --- */
+        thead {
+            background-color: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        th {
+            padding: 14px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #4b5563;
+        }
+
+        td {
+            padding: 16px;
+            font-size: 0.95rem;
+            color: #1f2937;
+            
+            white-space: nowrap;
+        }
+
+        tbody tr:hover {
+            background-color: #f3f4f6;
+            cursor: default;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #e9e9e9 !important;
+        }
+
+        .pfp{
+            height: 2.1rem;
+            aspect-ratio: 1;
+            margin: 0px;
+            padding: 0px;
+            object-fit: cover;
+            border-radius: 50%;
+            vertical-align: middle;
+        }
+    </style>
 </head>
 <body>
-    admin
-
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Profile Picture</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {# Loop through each user object in the data array #}
+                {% for userdata in data %}
+                    <tr>
+                        <td>{{ userdata.user_id }}</td>
+                        <td><img class="pfp" src="{{ CDN_HOST }}/profile_images/{{ userdata.profile_pic }}"></td>
+                        <td>{{ userdata.username }}</td>
+                        <td>{{ userdata.email }}</td>
+                        <td>{{ userdata.register_date.toLocaleDateString() }}</td>
+                        
+                    </tr>
+                {% else %}
+                    {# This handles the edge case if the database returns 0 users #}
+                    <tr>
+                        <td colspan="4">No users found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <script src="{{ CDN_HOST }}/js/shared.js"></script>
-    <script>
-        async function getData(){
-            const data = await jsonQuery("{{ API_HOST }}/admin/get-users")
-            console.log(data)
-        };
-
-
-        getData()
-        
-    </script>
 </body>
 </html>
