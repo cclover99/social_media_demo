@@ -4,6 +4,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 
 const db = require('#config/db');
+const dbService = require('#shared/src/services/dbService');
 const mediaService = require('#shared/src/services/mediaService');
 
 require('dotenv').config();
@@ -70,13 +71,7 @@ router.post('/login', async (req, res) => {
 
 
 // Logout
-router.post('/logout', async (req, res) => {
-    res.set({
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, private',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-    });
-    
+router.post('/logout', async (req, res) => {    
     req.session.destroy(err => {
         if (err) console.error(err);
         return res.redirect(302, '/');
@@ -94,7 +89,7 @@ router.post('/update-pfp', mediaService.profileUpload.single('picture'), mediaSe
     let old_filename = ((await db.query('SELECT profile_pic FROM users WHERE user_id = ?', [req.session.user.id]))[0][0])["profile_pic"];
     if (old_filename){
         try 
-            { await mediaService.deteleProfilePicture(old_filename) }
+            { await mediaService.deleteProfilePicture(old_filename) }
         catch 
             { console.log('Error deleting user profile picture'); return; };
     };
@@ -308,40 +303,92 @@ router.post('/delete-post', async (req, res) => {
 
     const [{author_id, parent_post_id, media}] = (await db.query('SELECT author_id, parent_post_id, media FROM posts WHERE post_id = ?', [post_id]))[0];
 
-    if (media?.length){
-        for (const m of JSON.parse(media[0])){
-            try{ 
-                await mediaService.deletePostMedia(m);
-            } catch{ 
-                console.log('Error deleting post media');
-                return;
-            };
-        };
+    // If not owner of the post then skedaadle
+    if (req.session.user?.id != author_id) {
+        return res.status(401).json({ error: 'Forbidden' });
     };
 
-    if (parent_post_id){
-        await db.query('UPDATE posts SET comment_count = comment_count - 1 WHERE post_id = ?', [parent_post_id]);
-    }
+    await dbService.deletePost(post_id);
 
-    if (req.session.user?.id == author_id){
-        await db.query('DELETE FROM posts WHERE post_id = ?', [post_id]);
-        await db.query('DELETE FROM likes WHERE post_id = ?', [post_id]);
-
-        res.json({ "ok": true });
-        return;
-    }else{
-        res.status(401).json({ error: 'Forbidden' })
-        return;
-    };
+    return res.json({ "ok": true });
 });
 
 
 router.post('/delete-account', async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
 
+    // Check password in req.body
+    const {password} = req.body;
+
+    const [post_request] = await db.query('SELECT post_id FROM posts WHERE author_id = ?', [req.session.user.id]);
+    const posts = post_request.map(item => item.post_id)
+
+    const [[{profile_pic: avatar}]] = await db.query('SELECT profile_pic FROM users WHERE user_id = ?', [req.session.user.id]);
+
+    // Delete posts
+    for (const post of posts){
+        await dbService.deletePost(post);
+    };
+
+    // Delete avatar
+    if (avatar){
+        await mediaService.deleteProfilePicture(avatar);
+    };
+
     const user_id = req.session.user.id;
 
-    res.redirect('/');
+    // Remove following and update
+    // Update follower_count
+    await db.query(`
+        UPDATE users AS u
+        JOIN follows AS f ON f.follower_id = ?
+        SET u.follower_count = u.follower_count - 1
+        WHERE f.following_id = u.user_id
+    `, [user_id]);
+
+    // Update following_count
+    await db.query(`
+        UPDATE users AS u
+        JOIN follows AS f ON f.following_id = ?
+        SET u.following_count = u.following_count - 1
+        WHERE f.follower_id = u.user_id
+    `, [user_id]);
+
+    // Delete follow rows
+    await db.query(`
+        DELETE FROM follows
+        WHERE follower_id = ? OR following_id = ?
+    `, [user_id, user_id]);
+
+
+
+    // Remove likes from posts
+    // Update like count
+    await db.query(`
+        UPDATE posts AS p
+        JOIN likes AS l ON l.post_id = p.post_id
+        SET p.like_count = p.like_count - 1
+        WHERE l.user_id = ?
+    `, [user_id]);
+
+    // Delete like
+    await db.query(`
+        DELETE FROM likes WHERE user_id = ?
+    `, [user_id]);
+
+
+    // Remove bookmarks
+    await db.query(`DELETE FROM bookmarks WHERE user_id = ?`, [user_id]);
+
+
+    // Delete user from database and log out
+    await db.query('DELETE FROM users WHERE user_id = ?', [user_id]);
+    
+    req.session.destroy(err => {
+        if (err) console.error(err);
+        return res.redirect(302, '/');
+    });
+    
 });
 
 

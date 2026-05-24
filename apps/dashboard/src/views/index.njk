@@ -84,7 +84,8 @@
                 {% for userdata in data %}
                     <tr>
                         <td>{{ userdata.user_id }}</td>
-                        <td><img class="pfp" src="{{ CDN_HOST }}/profile_images/{{ userdata.profile_pic }}"></td>
+
+                        <td><img class="pfp" src="{{ ( CDN_HOST + '/profile_images/' + userdata.profile_pic) if userdata.profile_pic else CDN_HOST + '/images/default.jpg' }}"></td>
                         <td>{{ userdata.username }}</td>
                         <td>{{ userdata.email }}</td>
                         <td>{{ userdata.register_date.toLocaleDateString() }}</td>

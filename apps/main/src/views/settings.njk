@@ -6,7 +6,7 @@
 
 {% block content %}
     <div id="settings-container">
-        <img style="float: left" class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg' }}">
+        <img style="float: left" class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else CDN_HOST + '/images/default.jpg' }}">
 
             
         <!-- {{ profile.about | default('This user has yet to tell about themselves', true) }}  -->
@@ -32,7 +32,7 @@
         </table>
         <br><br>
         <button id="confirm_button" autocomplete="off" disabled style="float: left; margin-top: 20px;">Update Settings</button>
-        <button autocomplete="off" style="float: left; margin-left: 10px; margin-top: 20px;" class="button_urgent">Delete Account</button>
+        <button autocomplete="off" style="float: left; margin-left: 10px; margin-top: 20px;" class="button_urgent" onclick="jsonQuery('/api/delete-account').then (() => window.location = '/')">Delete Account</button>
     </div>
 
     <script>

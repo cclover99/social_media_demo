@@ -271,7 +271,7 @@
                 if (post?.profile_pic)
                     post.profile_pic = '{{ CDN_HOST }}/profile_images/'+post.profile_pic
                 else
-                    post.profile_pic = '/assets/images/eed3b5053d44561ee17a1411b3c399dd.jpg';
+                    post.profile_pic = '{{ CDN_HOST }}/images/default.jpg';
                 
                 feed_container.appendChild(createPostElement(post, feed_container));
             });

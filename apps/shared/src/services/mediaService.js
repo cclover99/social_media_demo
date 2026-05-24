@@ -158,6 +158,6 @@ exports.deletePostMedia = async (filename) => {
 
 
 // Delete
-exports.deteleProfilePicture = async (filename) => {
+exports.deleteProfilePicture = async (filename) => {
     await fs.unlink(path.join('apps/shared/public/profile_images/', filename));
 };
