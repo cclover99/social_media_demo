@@ -13,10 +13,8 @@ require('dotenv').config();
 
 // Functions
 router.post('/get-users', async (req, res) => {
-    let data = await db.query('SELECT * FROM users')
-    console.log(data)
-
-})
+    let data = await db.query('SELECT * FROM users')    
+});
 
 // Export routes
 module.exports = router;
