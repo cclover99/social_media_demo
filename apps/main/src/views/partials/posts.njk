@@ -359,19 +359,23 @@
                 let text_paragraph = document.createElement("p");
                 text_paragraph.style.textAlign = "center";
 
-                
-                if (feed_type == "following" && feed_container.childElementCount == 0) {
-                    text_paragraph.innerText = "You're not following anyone.";  
-
-                } else if (feed_type == "bookmarks" && feed_container.childElementCount == 0) {
-                    text_paragraph.innerText = "You haven't bookmarked anything."; 
-
-                } else if (feed_type == "likes" && feed_container.childElementCount == 0) {
-                    text_paragraph.innerText = "You haven't liked anything.";    
-
+                if (feed_container.childElementCount == 0) {
+                    if (feed_type == "following") {
+                        text_paragraph.innerText = "You're not following anyone";  
+                    }else if (feed_type == "bookmarks") {
+                        text_paragraph.innerText = "You haven't bookmarked anything"; 
+                    } else if (feed_type == "likes") {
+                        text_paragraph.innerText = "You haven't liked anything"; 
+                    } else if (feed_type == "all") {
+                        text_paragraph.innerText = "No posts so far";
+                    } else if (feed_type == "profile") {
+                        text_paragraph.innerText = "No posts so far";
+                    }else {
+                        text_paragraph.innerText = "You've reached the end";
+                    };
                 } else {
-                    text_paragraph.innerText = "You've reached the end.";
-                }
+                    text_paragraph.innerText = "You've reached the end";
+                };
                 
                 // Don't add if feed type is detailed or comments.
                 if (!["detailed"].includes(feed_type)){

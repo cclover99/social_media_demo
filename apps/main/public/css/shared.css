@@ -42,7 +42,7 @@ body > main{
     color: white;
 }
 
-button{
+button:not([disabled]){
     border: none;
     border-radius: 5px;
     padding: 3px 8px;

@@ -12,14 +12,10 @@
     border: none;
 }
 
-#feedToggle > button.active{
+#feedToggle > button.active:not([disabled]){
     background-color: #007bff;
     color:white;   
-}
-
-#feedToggle > button:hover{
-    background-color: #007bff;
-    color: white;
+    cursor: grab !important;
 }
 
 

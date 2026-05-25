@@ -50,7 +50,6 @@ router.post('/login', async (req, res) => {
     if (!match) return res.status(401).send("Wrong Password");
 
     
-
     req.session.user = {
         "id": data.user_id,
         "username": data.username,
@@ -103,6 +102,51 @@ router.post('/update-pfp', mediaService.profileUpload.single('picture'), mediaSe
         if (err) console.error(err);
         res.json({ "ok": true, image_filename });
     });
+});
+
+
+// Update general user data
+router.post('/update-data', async (req, res) => {
+    if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
+
+    const { about, username, displayname, email } = req.body;
+
+    let query = 'UPDATE users SET';
+
+    let set = [];
+    let parameters = [];
+
+    if (about) {
+        set.push('about = ?');
+        parameters.push(about);
+    };
+
+    if (username) {
+        set.push('username = ?');
+        parameters.push(username);
+    };
+
+    if (displayname) {
+        set.push('display_name = ?');
+        parameters.push(displayname);
+    };
+
+    if (email) {
+        set.push('email = ?');
+        parameters.push(email);
+    };
+
+    if (set.length)
+        query += ` ${set.join(', ')}`;
+
+
+    query += ' WHERE user_id = ?';
+    parameters.push(req.session.user.id);
+
+    console.log(query, parameters);
+    //await db.query(query, parameters)
+
+    return;
 });
 
 

@@ -11,8 +11,8 @@
 
 {% block content %}
     <div id="feedToggle" class="tab">
-        <button class="tablinks active-tab" onclick="toggleTab(event, 'Global')">Global</button>
-        <button class="tablinks" onclick="toggleTab(event, 'Following')">Following</button>
+        <button class="tablinks active-tab" onclick="toggleTab(event, 'Global')">All</button>
+        <button class="tablinks" {% if not user %}disabled{% endif %} onclick="toggleTab(event, 'Following')">Following</button>
     </div>
 
     {% if user and user.id %}
