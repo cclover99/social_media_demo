@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const db = require('#config/db');
 const dbService = require('#shared/src/services/dbService');
 const mediaService = require('#shared/src/services/mediaService');
+const loginService = require ('#shared/src/services/loginService')
 
 require('dotenv').config();
 
@@ -23,19 +24,12 @@ router.post('/register', async (req, res) => {
     let hashed_password = await bcrypt.hash(password, 10);
 
     // Save the request into db
-    await db.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', [username, email, hashed_password]);
+    await db.execute('INSERT INTO users (username, display_name, email, password_hash) VALUES (?, ?, ?, ?)', [username, username, email, hashed_password]);
 
-    let [user] = await db.execute('SELECT user_id, username, display+name FROM users WHERE email = ? OR username = ? OR email = ?', [email, username, email]);
+    let [[user]] = await db.execute('SELECT user_id, username, display_name FROM users WHERE email = ? OR username = ? OR email = ?', [email, username, email]);
 
-    req.session.user = {
-        "id": user.user_id,
-        "username": user.username,
-        "displayName": user.display_name || null
-    };
-
-    req.session.save();
-
-    res.redirect('/');
+    console.log(user)
+    loginService.login(req, res, user);
 });
 
 
@@ -43,46 +37,25 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
-    let [data] = (await db.execute('SELECT user_id, username, display_name, password_hash, profile_pic FROM users WHERE email = ?', [email]))[0];
+    let [[data]] = await db.execute('SELECT user_id, username, display_name, password_hash, profile_pic FROM users WHERE email = ?', [email]);
 
 
     const match = await bcrypt.compare(password, ( data?.password_hash || '' ));
     if (!match) return res.status(401).send("Wrong Password");
 
     
-    req.session.user = {
-        "id": data.user_id,
-        "username": data.username,
-        "displayName": data.display_name,
-        "profile_pic": data.profile_pic
-    };
-
-    res.set({
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, private',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-    });
-
-    req.session.save(err => {
-        if (err) console.error(err);
-        return res.redirect(302, '/');
-    });
+    loginService.login(req, res, data);
 });
 
 
 // Logout
 router.post('/logout', async (req, res) => {    
-    req.session.destroy(err => {
-        if (err) console.error(err);
-        return res.redirect(302, '/');
-    });
+    loginService.logout(req, res);
 });
 
 
 // Update Profile Picutre
-router.post('/update-pfp', mediaService.profileUpload.single('picture'), mediaService.verifyFileType('profile'), async (req, res) => {
-    if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
-
+router.post('/update-pfp', loginService.isLoggedIn, mediaService.profileUpload.single('picture'), mediaService.verifyFileType('profile'), async (req, res) => {
     const image_filename = req.file.filename;
 
     // Delete old picture if exists
@@ -100,15 +73,13 @@ router.post('/update-pfp', mediaService.profileUpload.single('picture'), mediaSe
     req.session.user.profile_pic = image_filename;
     req.session.save(err => {
         if (err) console.error(err);
-        res.json({ "ok": true, image_filename });
+        return res.json({ "ok": true, image_filename });
     });
 });
 
 
 // Update general user data
-router.post('/update-data', async (req, res) => {
-    if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
-
+router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     const { about, username, displayname, email } = req.body;
 
     let query = 'UPDATE users SET';
@@ -124,11 +95,13 @@ router.post('/update-data', async (req, res) => {
     if (username) {
         set.push('username = ?');
         parameters.push(username);
+        req.session.username = username;
     };
 
     if (displayname) {
         set.push('display_name = ?');
         parameters.push(displayname);
+        req.session.displayname = displayname;
     };
 
     if (email) {
@@ -139,9 +112,13 @@ router.post('/update-data', async (req, res) => {
     if (set.length)
         query += ` ${set.join(', ')}`;
 
-
+    // Set final query tail
     query += ' WHERE user_id = ?';
     parameters.push(req.session.user.id);
+
+    // If session needs to update then update
+    if (displayname || username)
+        req.session.save();
 
     console.log(query, parameters);
     //await db.query(query, parameters)
@@ -297,8 +274,7 @@ router.post('/get-posts', async (req, res) => {
 
 
 // Create post
-router.post('/create-post', mediaService.postUpload.array('media', 4), mediaService.verifyFileType('post'), async (req, res) => {
-    if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
+router.post('/create-post', loginService.isLoggedIn, mediaService.postUpload.array('media', 4), mediaService.verifyFileType('post'), async (req, res) => {
     const {content} = req.body;
 
     if (!content && !req.files) return res.status(401).json({ error: "You can't make an empty post" });
@@ -359,9 +335,7 @@ router.post('/delete-post', async (req, res) => {
 });
 
 
-router.post('/delete-account', async (req, res) => {
-    if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
-
+router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
     // Check password in req.body
     const {password} = req.body;
 
@@ -429,17 +403,12 @@ router.post('/delete-account', async (req, res) => {
     // Delete user from database and log out
     await db.query('DELETE FROM users WHERE user_id = ?', [user_id]);
     
-    req.session.destroy(err => {
-        if (err) console.error(err);
-        return res.redirect(302, '/');
-    });
+    loginService.logout(req, res)
     
 });
 
 
-router.post('/like-post', async (req, res) => {
-    if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
-
+router.post('/like-post', loginService.isLoggedIn, async (req, res) => {
     const {post_id} = req.body;
 
     const [[is_liked]] = await db.query("SELECT 1 FROM likes WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
@@ -482,9 +451,7 @@ router.post('/bookmark-post', async (req, res) => {
 });
 
 
-router.post('/follow-user', async (req, res) => {
-    if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
-
+router.post('/follow-user', loginService.isLoggedIn, async (req, res) => {
     const {user_id} = req.body;
 
     let is_following = false;
