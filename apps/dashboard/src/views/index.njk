@@ -71,6 +71,7 @@
     <div class="table-container">
         <table>
             <thead>
+                
                 <tr>
                     <th>ID</th>
                     <th>Profile Picture</th>
@@ -94,7 +95,7 @@
                 {% else %}
                     {# This handles the edge case if the database returns 0 users #}
                     <tr>
-                        <td colspan="4">No users found.</td>
+                        <td colspan="5">No users found.</td>
                     </tr>
                 {% endfor %}
             </tbody>

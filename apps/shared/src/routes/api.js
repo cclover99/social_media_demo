@@ -15,21 +15,22 @@ require('dotenv').config();
 router.post('/register', async (req, res) => {
     const { email, username, password } = req.body;
     
-    let [user] = await db.execute('SELECT user_id FROM users WHERE email = ? OR username = ? OR email = ?', [email, username, email]);
+    let [user_exists] = await db.execute('SELECT user_id FROM users WHERE email = ? OR username = ? OR email = ?', [email, username, email]);
 
     // If user exists then return
-    if (user.length !== 0) return res.status(401).send("A user with this email or username already exists");
+    if (user_exists.length !== 0) return res.status(401).send("A user with this email or username already exists");
 
     let hashed_password = await bcrypt.hash(password, 10);
 
     // Save the request into db
     await db.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', [username, email, hashed_password]);
 
+    let [user] = await db.execute('SELECT user_id, username, display+name FROM users WHERE email = ? OR username = ? OR email = ?', [email, username, email]);
+
     req.session.user = {
         "id": user.user_id,
-        "displayname": "",
         "username": user.username,
-        "displayName": user.displayName || null
+        "displayName": user.display_name || null
     };
 
     req.session.save();
