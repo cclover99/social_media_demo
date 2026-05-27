@@ -24,7 +24,7 @@
 git clone https://github.com/ccloverdev/social_media_demo.git
 ```
 ```
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 
