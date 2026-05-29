@@ -10,7 +10,7 @@
 - [ ] Docker container CI/CD pipeline
 - [ ] Decoupled object storage with Cloudflare R2
 - [ ] Private DMs
-- [ ] Admin dashboard
+- [ ] RBAC Admin dashboard
 - [ ] Custom video player
 - [ ] 2fa login
 - [ ] Notification handler
