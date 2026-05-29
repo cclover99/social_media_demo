@@ -17,11 +17,13 @@ router.get('/', async (req, res) => {
 router.get(['/:username/', '/:username/likes', '/:username/replies'], async (req, res) => {
     const { username, page_type } = req.params;
 
-    let [data] = (await db.execute('SELECT * from users WHERE username = ?', [username]))[0] || {};
+    let [data] = (await db.execute('SELECT * from users WHERE username = ?', [username]))[0] || null;
 
+    
     let is_following = false;
+
     if (req.session.user) {
-        const [rows] = await db.query("SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?", [req.session.user.id, data.user_id]);
+        const [rows] = await db.execute("SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?", [req.session.user.id, data?.user_id || '']);
 
         is_following = rows.length > 0;
     };
