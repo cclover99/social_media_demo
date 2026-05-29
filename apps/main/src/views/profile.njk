@@ -133,83 +133,85 @@
     {% endif %}
 
     {{ feed.script({"profile_username": profile.username}) }}
+    
+    {% if profile %}
+        <script>
+            const feed_posts = document.getElementById('feed_posts');
+            const feed_replies = document.getElementById('feed_replies');
+            const feed_likes = document.getElementById('feed_likes');
 
-    <script>
-        const feed_posts = document.getElementById('feed_posts');
-        const feed_replies = document.getElementById('feed_replies');
-        const feed_likes = document.getElementById('feed_likes');
+            function setState(elm, tabName){
+                tabcontent = document.getElementsByClassName("tabcontent");
 
-        function setState(elm, tabName){
-            tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                };
 
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
+                tablinks = document.getElementsByClassName("tablinks");
+
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].classList.remove("active-tab");
+                };
+
+                document.getElementById(tabName).style.display = "block";
+                elm.classList.add("active-tab");
             };
 
-            tablinks = document.getElementsByClassName("tablinks");
+            function initState(){
+                const path_name = document.location.pathname;
 
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active-tab");
+                if (path_name.endsWith('/replies')){
+                    setState(feed_replies, 'replies-tab');
+                } else if (path_name.endsWith('/likes')){
+                    setState(feed_likes, 'likes-tab');
+                } else{
+                    setState(feed_posts, 'posts-tab');
+                }
             };
 
-            document.getElementById(tabName).style.display = "block";
-            elm.classList.add("active-tab");
-        };
+            window.addEventListener('popstate', () => {
+                window.scrollTo({ top: 0 });
+                initState();
+            });
 
-        function initState(){
-            const path_name = document.location.pathname;
-
-            if (path_name.endsWith('/replies')){
-                setState(feed_replies, 'replies-tab');
-            } else if (path_name.endsWith('/likes')){
-                setState(feed_likes, 'likes-tab');
-            } else{
-                setState(feed_posts, 'posts-tab');
-            }
-        };
-
-        window.addEventListener('popstate', () => {
-            window.scrollTo({ top: 0 });
             initState();
-        });
+        </script>
 
-        initState();
-    </script>
+        <script>
+            const follow_button = document.getElementById('follow');
 
-    <script>
-		const follow_button = document.getElementById('follow');
+            follow_button.onclick = async function(){
+                if (follow_button.innerText == "Follow"){
+                    // Request and return if un ok
+                    const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
+                    if (!result?.ok == true){ return };
 
-		follow_button.onclick = async function(){
-			if (follow_button.innerText == "Follow"){
-				// Request and return if un ok
-				const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
-				if (!result?.ok == true){ return };
+                    follow_button.innerText = "Following"
 
-				follow_button.innerText = "Following"
+                    // Add mouseover functions for UX
+                    follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
+                    follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };
+                }else{
+                    // Request and return if un ok
+                    const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
+                    if (!result?.ok == true){ return };
 
-				// Add mouseover functions for UX
-				follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
-				follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };
-			}else{
-				// Request and return if un ok
-				const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
-				if (!result?.ok == true){ return };
+                    // Remove mouseover functions
+                    follow_button.onmouseover = null;
+                    follow_button.onmouseleave = null;
 
-				// Remove mouseover functions
-				follow_button.onmouseover = null;
-				follow_button.onmouseleave = null;
+                    // Update Text
+                    follow_button.innerText = "Follow"
+                };
+            };
 
-				// Update Text
-				follow_button.innerText = "Follow"
-			};
-		};
-
-		// If following on page load at mouse over functions
-		if (follow_button.innerText != "Follow"){	
-			follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
-			follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };	
-		}
-    </script>
+            // If following on page load at mouse over functions
+            if (follow_button.innerText != "Follow"){	
+                follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
+                follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };	
+            }
+        </script>
+    {% endif %}
 
     {% include "partials/tabs.njk" %}
 
