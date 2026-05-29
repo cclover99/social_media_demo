@@ -116,7 +116,7 @@
     background-color: #ffffff; 
 }
 
-.postContainer:hover{
+.postContainer:not(.detailed-view):hover{
     cursor: pointer;
     background-color: #f7f7f7;
 }

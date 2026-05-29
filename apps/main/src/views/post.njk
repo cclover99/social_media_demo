@@ -10,10 +10,14 @@
 {% endblock %}
 
 {% block content %}
-    
     {% if post %}
+        <div id="posts" class="posts">
+            <div class="postContainer detailed-view" post-id="{{ post.post_id }}">
+                {% include "partials/postCard.njk" %}
+            </div>
+        </div>
+
         {{ feed.dom("detailed")}}
-        
     {% else %}
         <div class="missing">
             Post not found

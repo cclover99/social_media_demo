@@ -16,8 +16,11 @@
 
 {# Define DOM per unique displayType #}
 {% macro _dom(feedType = "all") %}
-    <div class="posts" data-feed="{{ feedType }}" id="posts"></div>
-    <div class="sentinel" data-feed="{{ feedType }}"></div>
+    {% if feedType != "detailed" %}
+        <div class="posts" data-feed="{{ feedType }}" id="posts"></div>
+        <div class="sentinel" data-feed="{{ feedType }}"></div>
+    {% endif %}
+    
 
     {% if feedType == "detailed" %}
         <div id="commentsContainer">
@@ -35,33 +38,7 @@
 {% macro _script(data = {}) %}
 <script src="{{ CDN_HOST }}/js/video-maker.js"></script>
 <script>
-        function genPostForm(){
-            const formElem = document.createElement("form");
-            formElem.method = "POST";
-
-            formElem.style.display = "inline-block";
-
-            return formElem;
-        }
-
-        function genPostIData(){
-            const inputElem = document.createElement("input");
-            inputElem.name = "post_id";
-            inputElem.required = true;
-            inputElem.type = "hidden";
-
-            return inputElem;
-        }
-
-        function genPostButton(){
-            const buttonElem = document.createElement("button");
-            buttonElem.type = "submit";
-
-            buttonElem.style.cursor = "pointer";
-
-            return buttonElem;
-        }
-
+        // Will be redone in CSR njk asap
         function createPostElement(data, feed_container){
             
             const buttonContainer = document.createElement("div");
@@ -108,42 +85,34 @@
             
             const postContent = document.createElement("span")
             postContent.textContent = data.content;            
+            
+            // Prevent middle click from activating scroll toggle
+            buttonContainer.addEventListener("pointerdown", (e) => { if (e.button === 1) { e.preventDefault(); e.stopPropagation() } });
 
-            // Add onclick event when its not detailed view
-            // Parses int if there's a data.post_id
-            if (feed_container.getAttribute('data-feed') != "detailed"){
-                // Prevent middle click from activating scroll toggle
-                buttonContainer.addEventListener("pointerdown", (e) => { if (e.button === 1) { e.preventDefault(); e.stopPropagation() } });
+            // Relocate to post page on pointerup
+            buttonContainer.addEventListener("pointerup", (e) => {
 
-                // Relocate to post page on pointerup
-                buttonContainer.addEventListener("pointerup", (e) => {
+                // Only accept left or middle  mouse button
+                if (![0, 1].includes(e.button)) return; 
 
-                    // Only accept left or middle  mouse button
-                    if (![0, 1].includes(e.button)) return; 
+                // Also don't run if its clicking the media or a button
+                const shouldIgnore = e.target.closest('media-container, button');
+                if (shouldIgnore) return;
 
-                    // Also don't run if its clicking the media or a button
-                    const shouldIgnore = e.target.closest('media-container, button');
-                    if (shouldIgnore) return;
+                // Don't if there's selection
+                const sel = window.getSelection();
+                const text = sel ? sel.toString().trim() : "";
+                const hasSelectionInside = text && sel.rangeCount > 0 && buttonContainer.contains(sel.anchorNode) && buttonContainer.contains(sel.focusNode);
+                if (hasSelectionInside) {console.log('selection'); return};
 
-                    // Don't if there's selection
-                    const sel = window.getSelection();
-                    const text = sel ? sel.toString().trim() : "";
-                    const hasSelectionInside = text && sel.rangeCount > 0 && buttonContainer.contains(sel.anchorNode) && buttonContainer.contains(sel.focusNode);
-                    if (hasSelectionInside) {console.log('selection'); return};
+                const new_url =  `/u/${data.username}/post/${data.post_id}`;
 
-                    const new_url =  `/u/${data.username}/post/${data.post_id}`;
-
-                    // If middle click open in new tab
-                    if (e.button === 1) { e.preventDefault(); e.stopPropagation(); window.open(new_url, '_blank', 'noopener') }
-                    // If m1 change url
-                    else{ window.location.href = new_url };
-                });
-            }else {
-                // When its detailed view
-                buttonContainer.style.cursor = "default";
-                buttonContainer.classList.add("detailed-view") 
-                postContent.style.cursor = "text";
-            }
+                // If middle click open in new tab
+                if (e.button === 1) { e.preventDefault(); e.stopPropagation(); window.open(new_url, '_blank', 'noopener') }
+                // If m1 change url
+                else{ window.location.href = new_url };
+            });
+            
 
             postDate.appendChild(postDateSmall);
 
@@ -156,7 +125,7 @@
 
             
             if ("{{ data.user_id }}" == data.author_id && feed_container.getAttribute('data-feed') == "detailed"){
-                const  deleteButton = genPostButton();
+                const  deleteButton = document.createElement("button");;
 
                 deleteButton.onclick = async function(){
                     const result = await jsonQuery('/api/delete-post', JSON.stringify({"post_id": data.post_id}));
@@ -182,7 +151,7 @@
             divContainer.appendChild(topContainer);
 
             // Like
-            const  likeButton = genPostButton();
+            const  likeButton = document.createElement("button");;
             if (data.is_liked)
                 likeButton.classList.add('isLiked');
 
@@ -203,32 +172,26 @@
             // 
 
             // Repost
-            const  repostForm = genPostForm(); 
-            const  repostData = genPostIData(); 
-            const  repostButton = genPostButton();
-            repostForm.action = "/api/repost-post"; 
-            repostData.value = data.post_id; 
+            const  repostButton = document.createElement("button");;
             repostButton.innerText = "Repost"
-            repostForm.appendChild(repostData); 
-            repostForm.appendChild(repostButton);
             // 
 
             // Reply
-            const  replyButton = genPostButton();
+            const  replyButton = document.createElement("button");;
             replyButton.innerText = `Reply ${data.comment_count}`;
-            if (!parseInt("{{ data.post_id }}")){
-                replyButton.onclick = function(e) {
-                    // Only accept left  mouse button
-                    if (e.button != 0) return; 
-                    const new_url =  `/u/${data.username}/post/${data.post_id}`;
-                    window.location.href = new_url;
-                };
+            
+            replyButton.onclick = function(e) {
+                // Only accept left  mouse button
+                if (e.button != 0) return; 
+                const new_url =  `/u/${data.username}/post/${data.post_id}`;
+                window.location.href = new_url;
             };
             
-            // 
+            
+         
 
             // Bookmark
-            const  bookmarkButton = genPostButton();
+            const  bookmarkButton = document.createElement("button");;
             if (data.is_bookmarked)
                 bookmarkButton.classList.add('isBookmarked');
 
@@ -253,7 +216,7 @@
             action_buttons.classList.add("action-buttons")
             action_buttons.appendChild(likeButton);
             action_buttons.appendChild(replyButton);
-            action_buttons.appendChild(repostForm);
+            action_buttons.appendChild(repostButton);
             action_buttons.appendChild(bookmarkButton);
             
             divContainer.appendChild(action_buttons);
@@ -264,11 +227,20 @@
             return buttonContainer;
         }
     </script>
+
+    <script>
+        function createNJKPostCard(){
+
+        };
+    </script>
+
+
     <script>
         async function loadPosts(feed_container, posts = []){
             posts.forEach(post => {
                 // If it doesn't exist stop trying to make it exist
                 if (!post) return;
+                
                 if (post?.profile_pic)
                     post.profile_pic = '{{ CDN_HOST }}/profile_images/'+post.profile_pic
                 else
@@ -282,12 +254,10 @@
             let response;
             const postID = "{{ data.post_id }}" || null;
             
-            const profileUsername = '{{ data.profile_username }}' || null;
-            
             const formData = {
                 "last_post_id": last_post_id,
                 "post_id": postID,
-                "author_name": profileUsername,
+                "author_name": '{{ data.profile_username }}',
                 "page_type": feed_type
             };
 
@@ -304,14 +274,12 @@
                 return response;
             }catch (error) {
                 console.error('Error fetching posts:', error);
-            }
+                return {};
+            };
             
-
-            return response;
         };
 
         // Assemble and run everything
-
         async function loadNewPosts(sentinelDOM){
             // Determine the type of the feed, either "all", "following", "likes" or "bookmarks"
             const feed_type = sentinelDOM.getAttribute('data-feed');
@@ -324,41 +292,23 @@
 
             const response = await fetchPosts(feed_type, last_post_id);
 
-            const posts = await response?.json();
-
-            if (feed_type == "detailed" && !posts?.length){
-                console.log('noposts')
-                observer.unobserve(sentinelDOM);
-                sentinelDOM.remove();
-                observer.disconnect();
-                document.getElementById('commentsContainer')?.remove();
-
-                let text_paragraph = document.createElement("p");
-                text_paragraph.style.textAlign = "center";
-
-                text_paragraph.innerText = "Post not found";    
-
-                feed_container?.appendChild(document.createElement('br'));
-                feed_container?.appendChild(document.createElement('br'));
-                feed_container?.appendChild(text_paragraph);
-
-                return;
-            };
+            const posts = await response?.json();            
             
-            
+
+            // Load posts
+            if (posts?.length) await loadPosts(feed_container, posts);;
+
 
             // If server returns less than 10 posts there isn't any posts left to display
-            if (posts?.length) await loadPosts(feed_container, posts);;
             if (posts?.length < 10 || !posts?.length ) {
                 
-
                 // Disposal
                 observer.unobserve(sentinelDOM);
                 sentinelDOM.remove();
                 if (!document.querySelector('.sentinel')) observer.disconnect();
 
                 let text_paragraph = document.createElement("p");
-                text_paragraph.classList.add("feed-end")
+                text_paragraph.classList.add("feed-end");
                 text_paragraph.style.textAlign = "center";
 
                 if (feed_container.childElementCount == 0) {
@@ -381,6 +331,7 @@
                     text_paragraph.innerText = "You've reached the end";
                 };
                 
+
                 // Don't add if feed type is detailed or comments.
                 if (!["detailed"].includes(feed_type)){
                     feed_container?.appendChild(text_paragraph);
@@ -389,6 +340,7 @@
                 return;
             };
         };
+
 
         const observerLoading = new WeakMap();
         const observer = new IntersectionObserver(async (entries) => {
@@ -408,17 +360,16 @@
             threshold: 0.0
         });
 
+
         async function initWindow(){
             document.querySelectorAll('.sentinel').forEach((el) => {
                 observerLoading.set(el, false);
                 observer.observe(el);
             });
-        }
-
+        };
 
 
         // Call fetchPosts when the page loads
-        // initWindow()
         window.onload = initWindow;
     </script>
 {% endmacro %}
