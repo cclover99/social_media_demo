@@ -345,7 +345,7 @@ router.post('/create-post', loginService.isLoggedIn, mediaService.postUpload.arr
     };
 
     await db.execute(query, parameters);
-    res.redirect(referer || '/');
+    return res.redirect(referer || '/');
 
 });
 
