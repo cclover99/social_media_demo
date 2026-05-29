@@ -59,7 +59,9 @@ router.post('/update-pfp', loginService.isLoggedIn, mediaService.profileUpload.s
     const image_filename = req.file.filename;
 
     // Delete old picture if exists
-    let old_filename = ((await db.query('SELECT profile_pic FROM users WHERE user_id = ?', [req.session.user.id]))[0][0])["profile_pic"];
+    let [[{"profile_pic": old_filename}]] = await db.execute('SELECT profile_pic FROM users WHERE user_id = ?', [req.session.user.id]);
+    
+
     if (old_filename){
         try 
             { await mediaService.deleteProfilePicture(old_filename) }
@@ -68,7 +70,7 @@ router.post('/update-pfp', loginService.isLoggedIn, mediaService.profileUpload.s
     };
         
 
-    await db.query('UPDATE users SET profile_pic = ? WHERE user_id = ?', [image_filename, req.session.user.id]);
+    await db.execute('UPDATE users SET profile_pic = ? WHERE user_id = ?', [image_filename, req.session.user.id]);
 
     req.session.user.profile_pic = image_filename;
     req.session.save(err => {
@@ -82,6 +84,13 @@ router.post('/update-pfp', loginService.isLoggedIn, mediaService.profileUpload.s
 router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     const { about, username, displayname, email } = req.body;
 
+
+    // If updated info must be unique do checks
+    if ( username || email){
+      let [subQuery] = await db.execute('SELECT username, email FROM users WHERE username = ? OR email = ?', [username || '', email || '']);
+
+      console.log(subQuery);
+    };
     let query = 'UPDATE users SET';
 
     let set = [];
@@ -120,8 +129,8 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     if (displayname || username)
         req.session.save();
 
-    console.log(query, parameters);
-    //await db.query(query, parameters)
+    // console.log(query, parameters);
+    //await db.execute(query, parameters)
 
     return;
 });
@@ -171,11 +180,9 @@ router.post('/get-posts', async (req, res) => {
         `;
     };
 
-    
-
     let last_post_date;
     if (last_post_id) {
-        [[{"publish_date": last_post_date}]] = await db.query('SELECT publish_date FROM posts WHERE post_id = ?', [last_post_id]);
+        [[{"publish_date": last_post_date}]] = await db.execute('SELECT publish_date FROM posts WHERE post_id = ?', [last_post_id]);
         where.push(`
             (
                 p.publish_date < ?
@@ -261,7 +268,7 @@ router.post('/get-posts', async (req, res) => {
 
         // Mysql query
         // console.log(query, filters)
-        const [data] = await db.execute(query, filters);
+        const [data] = await db.query(query, filters);
 
         // Send back the data if exists, if not send empty
         res.json(data || []);
@@ -298,7 +305,7 @@ router.post('/create-post', loginService.isLoggedIn, mediaService.postUpload.arr
         insert.push("parent_post_id");
         parameters.push(Number(reply_to));
 
-        await db.query('UPDATE posts SET comment_count = comment_count + 1 WHERE post_id = ?', [reply_to]);
+        await db.execute('UPDATE posts SET comment_count = comment_count + 1 WHERE post_id = ?', [reply_to]);
     };
 
     // If media push into parameters
@@ -322,7 +329,7 @@ router.post('/create-post', loginService.isLoggedIn, mediaService.postUpload.arr
 router.post('/delete-post', async (req, res) => {
     const {post_id} = req.body;
 
-    const [{author_id, parent_post_id, media}] = (await db.query('SELECT author_id, parent_post_id, media FROM posts WHERE post_id = ?', [post_id]))[0];
+    const [[{author_id, parent_post_id, media}]] = (await db.execute('SELECT author_id, parent_post_id, media FROM posts WHERE post_id = ?', [post_id]));
 
     // If not owner of the post then skedaadle
     if (req.session.user?.id != author_id) {
@@ -339,10 +346,10 @@ router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
     // Check password in req.body
     const {password} = req.body;
 
-    const [post_request] = await db.query('SELECT post_id FROM posts WHERE author_id = ?', [req.session.user.id]);
+    const [post_request] = await db.execute('SELECT post_id FROM posts WHERE author_id = ?', [req.session.user.id]);
     const posts = post_request.map(item => item.post_id)
 
-    const [[{profile_pic: avatar}]] = await db.query('SELECT profile_pic FROM users WHERE user_id = ?', [req.session.user.id]);
+    const [[{"profile_pic": avatar}]] = await db.execute('SELECT profile_pic FROM users WHERE user_id = ?', [req.session.user.id]);
 
     // Delete posts
     for (const post of posts){
@@ -358,7 +365,7 @@ router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
 
     // Remove following and update
     // Update follower_count
-    await db.query(`
+    await db.execute(`
         UPDATE users AS u
         JOIN follows AS f ON f.follower_id = ?
         SET u.follower_count = u.follower_count - 1
@@ -366,7 +373,7 @@ router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
     `, [user_id]);
 
     // Update following_count
-    await db.query(`
+    await db.execute(`
         UPDATE users AS u
         JOIN follows AS f ON f.following_id = ?
         SET u.following_count = u.following_count - 1
@@ -374,7 +381,7 @@ router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
     `, [user_id]);
 
     // Delete follow rows
-    await db.query(`
+    await db.execute(`
         DELETE FROM follows
         WHERE follower_id = ? OR following_id = ?
     `, [user_id, user_id]);
@@ -383,7 +390,7 @@ router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
 
     // Remove likes from posts
     // Update like count
-    await db.query(`
+    await db.execute(`
         UPDATE posts AS p
         JOIN likes AS l ON l.post_id = p.post_id
         SET p.like_count = p.like_count - 1
@@ -391,17 +398,17 @@ router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
     `, [user_id]);
 
     // Delete like
-    await db.query(`
+    await db.execute(`
         DELETE FROM likes WHERE user_id = ?
     `, [user_id]);
 
 
     // Remove bookmarks
-    await db.query(`DELETE FROM bookmarks WHERE user_id = ?`, [user_id]);
+    await db.execute(`DELETE FROM bookmarks WHERE user_id = ?`, [user_id]);
 
 
-    // Delete user from database and log out
-    await db.query('DELETE FROM users WHERE user_id = ?', [user_id]);
+    // Finally delete user from database and log out
+    await db.execute('DELETE FROM users WHERE user_id = ?', [user_id]);
     
     loginService.logout(req, res);
     
@@ -411,19 +418,19 @@ router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
 router.post('/like-post', loginService.isLoggedIn, async (req, res) => {
     const {post_id} = req.body;
 
-    const [[is_liked]] = await db.query("SELECT 1 FROM likes WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
+    const [[is_liked]] = await db.execute("SELECT 1 FROM likes WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
 
     if (!is_liked){
         // If not liked then like
-        await db.query('INSERT INTO likes (user_id, post_id) VALUES (?, ?)', [req.session.user.id, post_id]);
+        await db.execute('INSERT INTO likes (user_id, post_id) VALUES (?, ?)', [req.session.user.id, post_id]);
         // Insert like
-        await db.query('UPDATE posts SET like_count = like_count + 1 WHERE post_id = ?', [post_id]);
+        await db.execute('UPDATE posts SET like_count = like_count + 1 WHERE post_id = ?', [post_id]);
         res.json({ "ok": true });
     }else{
         // If liked then unlike
-        await db.query('DELETE FROM likes WHERE user_id = ? AND post_id = ?;', [req.session.user.id, post_id]);
+        await db.execute('DELETE FROM likes WHERE user_id = ? AND post_id = ?;', [req.session.user.id, post_id]);
         // Insert unlike
-        await db.query('UPDATE posts SET like_count = like_count - 1 WHERE post_id = ?', [post_id])
+        await db.execute('UPDATE posts SET like_count = like_count - 1 WHERE post_id = ?', [post_id])
         res.json({ "ok": true });
     };
 });
@@ -434,16 +441,16 @@ router.post('/bookmark-post', async (req, res) => {
 
     const {post_id} = req.body;
 
-    const [[is_bookmarked]] = await db.query("SELECT post_id FROM bookmarks WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
+    const [[is_bookmarked]] = await db.execute("SELECT post_id FROM bookmarks WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
 
     if (!is_bookmarked){
         // If not bookmarked then like
-        await db.query('INSERT INTO bookmarks (user_id, post_id) VALUES (?, ?)', [req.session.user.id, post_id]);
+        await db.execute('INSERT INTO bookmarks (user_id, post_id) VALUES (?, ?)', [req.session.user.id, post_id]);
         
         res.json({ "ok": true });
     }else{
         // If bookmarked then un-bookmark
-        await db.query('DELETE FROM bookmarks WHERE user_id = ? AND post_id = ?;', [req.session.user.id, post_id]);
+        await db.execute('DELETE FROM bookmarks WHERE user_id = ? AND post_id = ?;', [req.session.user.id, post_id]);
         
         res.json({ "ok": true });
     };
@@ -456,7 +463,7 @@ router.post('/follow-user', loginService.isLoggedIn, async (req, res) => {
 
     let is_following = false;
     if (req.session.user) {
-        const [rows] = await db.query("SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?", [req.session.user.id, user_id]);
+        const [rows] = await db.execute("SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?", [req.session.user.id, user_id]);
 
         is_following = rows.length > 0;
     }
@@ -464,19 +471,19 @@ router.post('/follow-user', loginService.isLoggedIn, async (req, res) => {
 
     if (!is_following){
         // If not following then follow
-        await db.query('INSERT INTO follows (follower_id, following_id) VALUES (?, ?)', [req.session.user.id, user_id]);
+        await db.execute('INSERT INTO follows (follower_id, following_id) VALUES (?, ?)', [req.session.user.id, user_id]);
 
         // Insert follow
-        await db.query('UPDATE users SET following_count = following_count + 1 WHERE user_id = ?', [req.session.user.id]);
-        await db.query('UPDATE users SET follower_count = follower_count + 1 WHERE user_id = ?', [user_id]);
+        await db.execute('UPDATE users SET following_count = following_count + 1 WHERE user_id = ?', [req.session.user.id]);
+        await db.execute('UPDATE users SET follower_count = follower_count + 1 WHERE user_id = ?', [user_id]);
         res.json({ "ok": true });
     }else{
         // If not unfollow
-        await db.query('DELETE FROM follows WHERE follower_id = ? AND following_id = ?;', [req.session.user.id, user_id]);
+        await db.execute('DELETE FROM follows WHERE follower_id = ? AND following_id = ?;', [req.session.user.id, user_id]);
 
         // Insert unfollow
-        await db.query('UPDATE users SET following_count = following_count - 1 WHERE user_id = ?', [req.session.user.id]);
-        await db.query('UPDATE users SET follower_count = follower_count - 1 WHERE user_id = ?', [user_id]);
+        await db.execute('UPDATE users SET following_count = following_count - 1 WHERE user_id = ?', [req.session.user.id]);
+        await db.execute('UPDATE users SET follower_count = follower_count - 1 WHERE user_id = ?', [user_id]);
         res.json({ "ok": true });
     };
 
