@@ -1,18 +1,18 @@
 {% extends "base.njk" %}
 
-{% from "partials/posts.njk" import posts %}
+{% from "partials/feed.njk" import feed %}
 
 {% block head %}
     <link rel="stylesheet" href="/css/index.css">
 
-    {{ posts.style | safe }}
+    {{ feed.style | safe }}
 
 {% endblock %}
 
 {% block content %}
     
     {% if post %}
-        {{ posts.dom("detailed")}}
+        {{ feed.dom("detailed")}}
         
     {% else %}
         <div class="missing">
@@ -25,6 +25,6 @@
 
 {% block script %}
 
-    {{ posts.script({"post_id": post.post_id, "user_id": user.id})}}
+    {{ feed.script({"post_id": post.post_id, "user_id": user.id})}}
 
 {% endblock %}

@@ -1,5 +1,6 @@
 const db = require('#config/db');
 
+
 exports.login = async (req, res, data) => {
     req.session.user = {
         "id": data.user_id,
@@ -14,12 +15,14 @@ exports.login = async (req, res, data) => {
     });
 };
 
+
 exports.logout = async (req, res) => {
     req.session.destroy(err => {
         if (err) console.error(err);
         return res.redirect(302, '/');
     });
 };
+
 
 exports.isLoggedIn  = async (req, res, next) => {
   if (!req.session.user?.id) {

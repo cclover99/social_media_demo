@@ -38,7 +38,7 @@ body > main{
     color: black;
     text-decoration: none;
     display: block;
-    font-weight: 500;
+    
     color: white;
 }
 
@@ -73,22 +73,37 @@ button:not([disabled]){
     right: calc( ( 50% + (770px / 2) + 20px ) );
 }
 
+.mini_profile .nav-button, .mini_profile .profile_link{
+    background-color: #6e839b;
+    color: white;
+
+    border-radius: 8px;
+}
+
+
 .mini_profile .profile_link{
-    background-color: gray;
     display: inline-block;
     height: 50px !important;
-    padding: 5px;
+    padding: 6px;
     padding-right: 12px;
     padding-left: 10px;
     
     width: 100%;
     box-sizing: border-box;
 
-    border-radius: 10px;
-
     text-decoration: none;
-    color: white;
     margin-bottom: 0px;
+}
+
+.mini_profile .profile_link .user_username{
+    margin-right: 2px;
+}
+
+.mini_profile .profile_link .user_displayname{
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.836);
+    margin-top: -2px;
+    display: inline-block;
 }
 
 .mini_profile .profile_link img{
@@ -101,24 +116,21 @@ button:not([disabled]){
 }
 
 .mini_profile .nav-button{
-    
     height: 50px !important;
     display: block;
     padding: 5px;
     width: 100%;
-    background-color: rgb(182, 182, 182);
     margin: 20px;
     margin-left: 0px;
     margin-right: 0px;
-    border-radius: 10px;;
     padding-right: 12px;
     padding-left: 16px;
 
     padding-top: 15px;
     box-sizing: border-box;
     text-decoration: none;
-    color: black;
 }
+
 
 .mini_profile .nav-button:first-of-type{
     margin: 100px;
@@ -141,8 +153,8 @@ button:not([disabled]){
     }
 
     body > main{
-        width: 90%;
-        
+        width: 100%;
+        top: 0px;
     }
 
     #posts{
@@ -152,9 +164,4 @@ button:not([disabled]){
         padding: 0px !important;
         position: relative;
     }
-
-    .postMaker{
-        width: 90% !important;
-    }
-
 }

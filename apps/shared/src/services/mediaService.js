@@ -11,11 +11,11 @@ const db = require('#config/db');
 
 
 // Set allowed extensions
-const profileMediaExtensions = ['.jpg', '.jpeg', '.png'];
-const profileMimeTypes = ['image/jpeg', 'image/png'];
+const profileMediaExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+const profileMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
-const postMediaExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mkv', '.webm'];
-const postMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4'];
+const postMediaExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mkv', '.webm', '.webp'];
+const postMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'image/webp'];
 
 
 

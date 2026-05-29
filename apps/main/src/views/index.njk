@@ -1,11 +1,11 @@
 {% extends "base.njk" %}
 
-{% from "partials/posts.njk" import posts %}
+{% from "partials/feed.njk" import feed %}
 
 {% block head %}
     <link rel="stylesheet" href="/css/index.css">
     
-    {{ posts.style | safe }}
+    {{ feed.style | safe }}
 
 {% endblock %}
 
@@ -25,11 +25,11 @@
     
 
     <div id="Global" class="tabcontent">
-        {{ posts.dom("all") }}
+        {{ feed.dom("all") }}
     </div>
 
     <div id="Following" class="tabcontent">
-        {{ posts.dom("following") }}
+        {{ feed.dom("following") }}
     </div>
 
     
@@ -37,7 +37,7 @@
 
 {% block script %}
 
-    {{ posts.script() }}
+    {{ feed.script() }}
 
     {% include "partials/tabs.njk" %}
 {% endblock %}

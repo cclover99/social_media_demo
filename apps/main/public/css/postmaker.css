@@ -1,0 +1,105 @@
+.postMaker{
+    width: 100%;
+    /* border: 1px solid #ddd; */
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9; 
+
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+
+.postMaker .button{
+    cursor: pointer;
+    border-radius: 5px;
+    padding: 7px 15px;
+    background-color: #007bff;
+}
+
+.postMaker .button:hover{
+    background-color: #0074f0;
+}
+
+.postMaker #textarea{
+    width: 100%; 
+    height: 80px; 
+    padding: 10px; 
+    border: 0px solid #ccc; 
+    background-color: rgb(245, 245, 245);
+    border-radius: 4px; 
+    box-sizing: border-box; 
+    resize: vertical;
+}
+
+.postMaker #textarea:focus{
+    outline: none;
+}
+
+
+#media-button{
+    font-size: small;
+    margin-right: 10px;
+    user-select: none;
+}
+
+.postMaker #mediaPreview{
+    margin-top: 10px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    text-align: left; 
+
+    display: flex;
+    
+    justify-content: center; 
+    
+    flex-wrap: wrap;
+}
+
+.postMaker #mediaPreview > div:has(img){
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+
+    margin: 10px;
+
+    justify-content: center; 
+}
+
+
+/* Span element used as button */
+.postMaker #mediaPreview > div:has(img) > span{
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: #df5367;
+    color: white;
+    border-radius: 4px;
+    
+    font-size: small;
+    visibility: hidden;
+    cursor: pointer;
+
+    display: flex;
+
+    width: 20px;
+    height: 20px;
+    justify-content: center; 
+    align-items: center;
+}
+
+.postMaker #mediaPreview > div:has(img):hover > span{
+
+    visibility: visible;
+}
+
+
+/* Img Element */
+.postMaker #mediaPreview img{
+    border-radius: 5px;
+    max-width: 250px;
+    max-height: 300px;
+    display: block;
+}
+
+

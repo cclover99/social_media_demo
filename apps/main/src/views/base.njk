@@ -21,7 +21,10 @@
         <div style="text-align: left;">
             {% if user and user.id %}
                 <div>
-                    <a class="profile_link" href="/u/{{ user.username }}"><img src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else CDN_HOST + '/images/default.jpg' }}"> {{ user.username }}</a>
+                    <a class="profile_link" href="/u/{{ user.username }}">
+                        <img src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else CDN_HOST + '/images/default.jpg' }}"> 
+                        <span class="user_username">{{ user.username}}</span> <span class="user_displayname">@{{ user.displayname }}</span>
+                    </a>
 
                     
                     <!-- <a class="nav-button" href="/chat"> Messages </a> -->
@@ -40,11 +43,12 @@
                         
                     </div>
             {% else %}
-                <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px;">
                     <button onclick="window.location = '/login';">login</button>
                     <button onclick="window.location = '/register';">sign up</button>
-            {% endif %}
                 </div>
+            {% endif %}
+                
         </div>
     </section>
 

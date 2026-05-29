@@ -403,7 +403,7 @@ router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
     // Delete user from database and log out
     await db.query('DELETE FROM users WHERE user_id = ?', [user_id]);
     
-    loginService.logout(req, res)
+    loginService.logout(req, res);
     
 });
 

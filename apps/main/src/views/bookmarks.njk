@@ -1,19 +1,23 @@
 {% extends "base.njk" %}
 
-{% from "partials/posts.njk" import posts %}
+
+{% from "partials/feed.njk" import feed %}
+
 
 {% block head %}
     
-    {{ posts.style | safe }}
+    {{ feed.style | safe }}
 
 {% endblock %}
+
 
 {% block content %}
-    {{ posts.dom("bookmarks") }}
+    {{ feed.dom("bookmarks") }}
 {% endblock %}
+
 
 {% block script %}
 
-    {{ posts.script() }}
+    {{ feed.script() }}
 
 {% endblock %}

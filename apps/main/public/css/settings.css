@@ -1,9 +1,9 @@
 .large_pfp{
     width: 100px;
     height: 100PX;
-    border: 1px solid black;
+    border: 3px solid rgb(180, 180, 180);
     margin-right: 20px;
-    border-radius: 6px;
+    border-radius: 50%;
     object-fit: cover;
 }
 

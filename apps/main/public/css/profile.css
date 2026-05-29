@@ -1,10 +1,35 @@
+:root{
+    --left-spacing: 40px;
+}
+
+.banner{
+    background-color: rgba(110, 110, 110, 0.562);
+    background-image: linear-gradient(to bottom, rgba(167, 167, 167, 0.562), rgba(134, 134, 134, 0.562));
+    height: 190px;
+    width: 100%;
+    
+    border-radius: 5px;
+}
+
+
 .pfp_container{
-    width: 135px;
-    height: 135px;
-    left: 50%;
+    
+    --self-size: 135px;
+    width: var(--self-size);
+    height: var(--self-size);
+    
     position: relative;
-    transform: translateX(-50%);
-    top: 15px;
+
+    left: 10px;
+    
+    --self-displacement: calc(((var(--self-size)/2)*-1) - 6px);
+
+    top: var(--self-displacement);
+
+    margin-bottom: calc(var(--self-displacement) - 10px);
+
+    border-radius: 50%;
+    border: 4px solid #f1f1f1;
 }
 
 .large_pfp{
@@ -12,43 +37,46 @@
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
+    
 }
 
-#updatePFP > svg{
-    visibility: hidden;
-}
+#updatePFP > svg{ visibility: hidden }
+#updatePFP:hover > svg{ visibility: visible }
 
 #updatePFP{
-    
-    left: 0;
-    top: 0;
+    left: 0px;
+    top: 0px;
     position: absolute;
     height: 100%;
     width: 100%;
     border: none;
     background-color: transparent;
     border-radius: 50%;
+    
 }
 
 #updatePFP:hover{
-    
     cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.507);
+    background-color: rgba(0, 0, 0, 0.253);
 }
 
-#updatePFP:hover > svg{
-    visibility: visible;
-}
+
 
 #updatePFP > .large_pfp{
     position:relative;
     z-index: 1;
-    
+}
+
+.profile_view{
+    text-align: left;
+    padding-bottom: 20px;
+    position: relative;
+    padding-left: 10px;
 }
 
 
 .follow-indicator{
-    font-weight: bold;
+    font-weight: 500;
     color: black;
     text-decoration: none;
 }
@@ -68,16 +96,70 @@
     font-weight: normal;
 }
 
-
 .feed-info{
-    margin-left: 50%;
-    transform: translateX(-50%);
+    
     text-align: center;
     background-color: rgb(45, 106, 236);
     font-size: 0.8rem;
     color: white;
-    border-radius: 10px;
+    border-radius: 20px;
     padding: 6px;
-    width: 80%;
+    
     display: block;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.profile_displayname{
+    font-weight: 500;
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 0px;
+    font-size: 1.4rem;
+}
+
+.profile_username{
+    display: block;
+    margin-top: 0px;
+    margin-bottom: 20px;
+    color: gray;
+}
+
+.profile_about{
+    display: block;
+}
+
+
+.profile_buttons{
+    user-select: none;
+    position: absolute;
+    top: 20px;
+    right: 10px;
+}
+
+.tab{
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab .tablinks.active-tab{
+    background-color: #5ba3f0;
+    color: white;
+}
+
+
+
+@media (width < 800px) {
+    .pfp_container{
+        --self-size: 100px;
+    }
+
+    .pfp_container{
+        border-width: 2px;
+
+        margin-bottom: calc(var(--self-displacement) - 14px);
+    }
 }

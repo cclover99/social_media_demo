@@ -1,6 +1,7 @@
 {# Header #}
 {% set _header %}
-    <link rel="stylesheet" href="/css/posts.css">
+    <link rel="stylesheet" href="/css/feed.css">
+    <link rel="stylesheet" href="/css/postmaker.css">
 
     {% if process.env.NODE_ENV == 'development' %}
         <script type="module" src="{{ CDN_HOST }}/js/video-bundle.js"></script>
@@ -20,7 +21,7 @@
 
     {% if feedType == "detailed" %}
         <div id="commentsContainer">
-            <hr><br>
+            <hr class="after-post"><br>
             {% include "partials/postmaker.njk" %}
 
             <div class="posts" data-feed="comments" id="posts"></div>
@@ -357,6 +358,7 @@
                 if (!document.querySelector('.sentinel')) observer.disconnect();
 
                 let text_paragraph = document.createElement("p");
+                text_paragraph.classList.add("feed-end")
                 text_paragraph.style.textAlign = "center";
 
                 if (feed_container.childElementCount == 0) {
@@ -381,16 +383,12 @@
                 
                 // Don't add if feed type is detailed or comments.
                 if (!["detailed"].includes(feed_type)){
-                    feed_container?.appendChild(document.createElement('br'));
-                    feed_container?.appendChild(document.createElement('br'));
                     feed_container?.appendChild(text_paragraph);
                 }
                 
                 return;
             };
-            
-
-        }
+        };
 
         const observerLoading = new WeakMap();
         const observer = new IntersectionObserver(async (entries) => {
@@ -420,14 +418,14 @@
 
 
         // Call fetchPosts when the page loads
-        initWindow()
-        // window.onload = initWindow;
+        // initWindow()
+        window.onload = initWindow;
     </script>
 {% endmacro %}
 
 
 {# Export self as object #}
-{% set posts = {
+{% set feed = {
     style: _header,
     dom: _dom,
     script: _script
