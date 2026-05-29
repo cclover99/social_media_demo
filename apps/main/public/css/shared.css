@@ -47,6 +47,11 @@ button:not([disabled]){
     border-radius: 5px;
     padding: 3px 8px;
     cursor: pointer;
+    
+}
+
+button:disabled{
+    padding: 1px 6px;
 }
 
 .button_urgent:hover{

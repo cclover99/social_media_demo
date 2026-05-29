@@ -31,8 +31,13 @@
             
         </table>
         <br><br>
-        <button id="confirm_button" autocomplete="off" disabled style="float: left; margin-top: 20px;">Update Settings</button>
-        <button autocomplete="off" style="float: left; margin-left: 10px; margin-top: 20px;" class="button_urgent" onclick="jsonQuery('/api/delete-account').then (() => window.location = '/')">Delete Account</button>
+        <div style="float: left; margin-top: 20px;">
+            <button id="confirm_button" autocomplete="off">Update Settings</button>
+            <button autocomplete="off" style="margin-left: 10px;" class="button_urgent" onclick="jsonQuery('/api/delete-account').then (() => window.location = '/')">Delete Account</button>    
+        </div>
+        <br><br><br><br>
+
+        <p style="margin-top:20px; margin-left: 10px;" id="result"></p>
     </div>
 
     <script>
@@ -41,16 +46,64 @@
 
         const confirmButton = document.getElementById("confirm_button");
 
-        
+        const result = document.getElementById('result')
+
+        let initialValues = {
+            "email": email.value,
+            "username": username.value
+        };
+
+
+        function valuesChanged(){
+            if ( (username.value == initialValues.username) && (email.value == initialValues.email) ){
+                return false;
+            }else{
+                return true;
+            };
+        }
+
         username.oninput = function(){
-            confirmButton.disabled = false;
-            username.oninput = null;
+            confirmButton.disabled = !valuesChanged();
         };
         
         email.oninput = function(){
-            confirmButton.disabled = false;
-            email.oninput = null;
+            confirmButton.disabled = !valuesChanged();
         };
+
+        confirmButton.onclick = async function(){
+            let formData = {};
+
+            if ( username.value != initialValues.username ){
+                formData.username = username.value;
+            };
+
+            if ( email.value != initialValues.email ){
+                formData.email = email.value;
+            };
+
+            console.log(formData);
+            let answer = await jsonQuery('/api/update-data', JSON.stringify(formData));
+
+            if (answer.ok == true){
+                result.innerText = 'Your details have been updated';
+
+                initialValues = {
+                    "email": email.value,
+                    "username": username.value
+                };
+
+                confirmButton.disabled = true;
+            } else {
+                if (answer.details.includes("username")){
+                    result.innerText = 'A user with the same username exists';
+                }else if (answer.details.includes("email")){
+                    result.innerText = 'A user with the same email already exists';
+                }else{
+                    result.innerText = 'A user with the same username and email already exists';
+                };
+            };
+        };
+
     </script>
     
 {% endblock %}

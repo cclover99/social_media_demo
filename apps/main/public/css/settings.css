@@ -21,3 +21,13 @@ table{
     margin-top: 2px;
     
 }
+
+
+#result{
+    display: block;
+}
+
+
+#result.fail{
+    color: #df5367;
+}

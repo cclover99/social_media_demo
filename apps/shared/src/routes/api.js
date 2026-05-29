@@ -87,10 +87,25 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
 
     // If updated info must be unique do checks
     if ( username || email){
-      let [subQuery] = await db.execute('SELECT username, email FROM users WHERE username = ? OR email = ?', [username || '', email || '']);
+        let [subQuery] = await db.execute('SELECT username, email FROM users WHERE username = ? OR email = ?', [username || '', email || '']);
 
-      console.log(subQuery);
+        let details = [];
+
+        if (subQuery.username && subQuery.username == username ){
+            details.push('email');
+        };
+
+        if (subQuery.email && subQuery.email == email){
+            details.push('email');
+        };
+
+        if (details.length){
+            return res.json({ "ok": false, "details": details });
+        };
     };
+    
+    
+    
     let query = 'UPDATE users SET';
 
     let set = [];
@@ -125,14 +140,23 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     query += ' WHERE user_id = ?';
     parameters.push(req.session.user.id);
 
-    // If session needs to update then update
-    if (displayname || username)
-        req.session.save();
+    
 
     // console.log(query, parameters);
-    //await db.execute(query, parameters)
+    await db.execute(query, parameters)
 
-    return;
+    // If session needs to update then update
+    if (displayname || username){
+        req.session.username = username || req.session.username;
+        req.session.displayname = displayname || req.session.displayname;
+
+        req.session.save(err => {
+            if (err) console.error(err);
+            return res.json({ "ok": true });
+        })
+    } else{
+        return res.json({ "ok": true });
+    };
 });
 
 
