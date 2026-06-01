@@ -100,8 +100,53 @@
 
 {% block script %}
 
-    <!-- If profile is self -->
-    {% if profile and profile.user_id == user.id %}
+    {{ feed.script({"profile_username": profile.username}) }}
+
+    {% if profile %}
+        <script>
+            const feed_posts = document.getElementById('feed_posts');
+            const feed_replies = document.getElementById('feed_replies');
+            const feed_likes = document.getElementById('feed_likes');
+
+            function setState(elm, tabName){
+                tabcontent = document.getElementsByClassName("tabcontent");
+
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                };
+
+                tablinks = document.getElementsByClassName("tablinks");
+
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].classList.remove("active-tab");
+                };
+
+                document.getElementById(tabName).style.display = "block";
+                elm.classList.add("active-tab");
+            };
+
+            function initState(){
+                const path_name = document.location.pathname;
+
+                if (path_name.endsWith('/replies')){
+                    setState(feed_replies, 'replies-tab');
+                } else if (path_name.endsWith('/likes')){
+                    setState(feed_likes, 'likes-tab');
+                } else{
+                    setState(feed_posts, 'posts-tab');
+                }
+            };
+
+            window.addEventListener('popstate', () => {
+                window.scrollTo({ top: 0 });
+                initState();
+            });
+
+            initState();
+        </script>
+
+        <!-- If profile is self -->
+        {% if profile and profile.user_id == user.id %}
             <script>
                 const updatePFP = document.getElementById("updatePFP");
                 const updateBanner = document.getElementById("updateBanner");
@@ -150,54 +195,7 @@
                     };
                 };
             </script>
-    {% endif %}
-
-
-    {{ feed.script({"profile_username": profile.username}) }}
-    
-
-    {% if profile %}
-        <script>
-            const feed_posts = document.getElementById('feed_posts');
-            const feed_replies = document.getElementById('feed_replies');
-            const feed_likes = document.getElementById('feed_likes');
-
-            function setState(elm, tabName){
-                tabcontent = document.getElementsByClassName("tabcontent");
-
-                for (i = 0; i < tabcontent.length; i++) {
-                    tabcontent[i].style.display = "none";
-                };
-
-                tablinks = document.getElementsByClassName("tablinks");
-
-                for (i = 0; i < tablinks.length; i++) {
-                    tablinks[i].classList.remove("active-tab");
-                };
-
-                document.getElementById(tabName).style.display = "block";
-                elm.classList.add("active-tab");
-            };
-
-            function initState(){
-                const path_name = document.location.pathname;
-
-                if (path_name.endsWith('/replies')){
-                    setState(feed_replies, 'replies-tab');
-                } else if (path_name.endsWith('/likes')){
-                    setState(feed_likes, 'likes-tab');
-                } else{
-                    setState(feed_posts, 'posts-tab');
-                }
-            };
-
-            window.addEventListener('popstate', () => {
-                window.scrollTo({ top: 0 });
-                initState();
-            });
-
-            initState();
-        </script>
+        {% endif %}
 
 
         {% if profile.user_id != user.id %}
