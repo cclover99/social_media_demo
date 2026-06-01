@@ -1,12 +1,19 @@
 #feedToggle{
+    top: 75px;
+    position: sticky;
     display: grid; 
     grid-template-columns: 1fr 1fr;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     gap: 10px;
+
+    box-shadow: 0 0 0 8px #f1f1f1;
+
+    background-color: #f1f1f1;
+    margin-top: -3px;
 }
 
 #feedToggle > button{
-    height: 28px;
+    height: 24px;
     border-radius: 6px;
 
     border: none;
@@ -22,4 +29,10 @@
 .active-tab{
     background-color: #5ba3f0;
     color: white;
+}
+
+@media (width < 800px) {
+    #feedToggle{
+        top: 55px;
+    }
 }

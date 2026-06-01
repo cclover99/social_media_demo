@@ -3,7 +3,7 @@
     /* border: 1px solid #ddd; */
     padding: 15px;
     border-radius: 5px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     background-color: #f9f9f9; 
 
     margin-top: 10px;
@@ -13,7 +13,7 @@
 .postMaker .button{
     cursor: pointer;
     border-radius: 5px;
-    padding: 7px 15px;
+    padding: 4px 12px;
     background-color: #007bff;
 }
 
@@ -89,7 +89,6 @@
 }
 
 .postMaker #mediaPreview > div:has(img):hover > span{
-
     visibility: visible;
 }
 

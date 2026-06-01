@@ -159,6 +159,13 @@
     right: 10px;
 }
 
+#feedToggle{
+    position: sticky;
+    top: 75px;
+    box-shadow: 0 0 0 8px #f1f1f1;
+    background-color: #f1f1f1;
+}
+
 .tab{
     width: 100%;
     display: grid;
