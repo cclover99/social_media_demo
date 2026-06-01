@@ -10,6 +10,12 @@ async function jsonQuery( url, data = '{}') {
             body: data,
         });
 
+        // If response wants to redirect
+        if (response.redirected) {
+            window.location.href = response.url; 
+            return; 
+        }
+
         const result = await response.json();
         return result;
 
