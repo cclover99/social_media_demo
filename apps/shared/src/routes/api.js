@@ -79,6 +79,35 @@ router.post('/update-pfp', loginService.isLoggedIn, mediaService.profileUpload.s
     });
 });
 
+// Update banner
+router.post('/update-banner', loginService.isLoggedIn, mediaService.profileUpload.single('picture'), mediaService.verifyFileType('profile'), async (req, res) => {
+    const image_filename = req.file.filename;
+
+    // Delete old picture if exists
+    let [[{"banner": old_filename}]] = await db.execute('SELECT banner FROM users WHERE user_id = ?', [req.session.user.id]);
+    
+
+    if (old_filename){
+        try 
+            { await mediaService.deleteProfilePicture(old_filename) }
+        catch 
+            { console.log('Error deleting user old profile banner'); return; };
+    };
+        
+
+    await db.execute('UPDATE users SET banner = ? WHERE user_id = ?', [image_filename, req.session.user.id]);
+
+    return res.json({ "ok": true, image_filename });
+});
+
+router.post('/delete-banner', loginService.isLoggedIn, async (req, res) => {
+    // Placeholder
+});
+
+router.post('/delete-pfp', loginService.isLoggedIn, async (req, res) => {
+    // Placeholder
+});
+
 
 // Update general user data
 router.post('/update-data', loginService.isLoggedIn, async (req, res) => {

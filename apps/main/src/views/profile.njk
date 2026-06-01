@@ -5,32 +5,45 @@
 {% block head %}
     <link rel="stylesheet" href="/css/profile.css">
 
+    {% if profile.banner %}
+        <style>
+            .banner{
+                background-image: url("{{ CDN_HOST + '/profile_images/' + profile.banner }}");
+            }
+        </style>
+    {% endif %}
+
     {{ feed.style | safe }}
 {% endblock %}
 
 {% block content %}
     {% if profile %}
-        <div class="banner"></div>
+        <div class="banner-container">
+            <div class="banner"></div>
+            {% if profile.user_id == user.id %}
+                <button id="updateBanner">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="52" height="52" viewBox="0 0 64 64">
+                        <path fill="white" d="M49,13c3.314,0,6,2.686,6,6v26c0,3.314-2.686,6-6,6H15c-3.314,0-6-2.686-6-6V19c0-3.314,2.686-6,6-6H49z M23,23	c-2.209,0-4,1.791-4,4c0,2.209,1.791,4,4,4c2.209,0,4-1.791,4-4C27,24.791,25.209,23,23,23z M51,45v-3.566l-9.319-8.38	c-1.524-1.37-3.836-1.367-5.356,0.006l-7.922,7.158l-3.793-3.244c-1.501-1.284-3.714-1.28-5.211,0.009L13,42.496V45	c0,1.105,0.895,2,2,2h34C50.104,47,51,46.105,51,45z"></path>
+                    </svg>
+                </button>
+            {% endif %}
+        </div>
+        
         <div class="profile_view">
             <div class="pfp_container">
+                <img class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + profile.profile_pic) if profile.profile_pic else CDN_HOST + '/images/default.jpg' }}">
                 {% if profile.user_id == user.id %}
-                    <img class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + profile.profile_pic) if profile.profile_pic else CDN_HOST + '/images/default.jpg' }}">
                     <button id="updatePFP">
                         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="52" height="52" viewBox="0 0 64 64">
                             <path fill="white" d="M49,13c3.314,0,6,2.686,6,6v26c0,3.314-2.686,6-6,6H15c-3.314,0-6-2.686-6-6V19c0-3.314,2.686-6,6-6H49z M23,23	c-2.209,0-4,1.791-4,4c0,2.209,1.791,4,4,4c2.209,0,4-1.791,4-4C27,24.791,25.209,23,23,23z M51,45v-3.566l-9.319-8.38	c-1.524-1.37-3.836-1.367-5.356,0.006l-7.922,7.158l-3.793-3.244c-1.501-1.284-3.714-1.28-5.211,0.009L13,42.496V45	c0,1.105,0.895,2,2,2h34C50.104,47,51,46.105,51,45z"></path>
                         </svg>
                     </button>
-                {% else %}
-                    <img class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + profile.profile_pic) if profile.profile_pic else CDN_HOST + '/images/default.jpg' }}">
                 {% endif %}
             </div>
 
             
             <div class="profile_buttons">
                 {% if profile.user_id == user.id %}
-                    <button onclick="window.location = '/settings'" type="submit">
-                        Edit Profile
-                    </button>
                     <button onclick="window.location = '/settings'" type="submit">
                         Settings
                     </button>
@@ -42,15 +55,14 @@
                 {% endif %}
             </div>
 
-            
-
             <span class="profile_displayname">{{ profile.display_name }}</span>     
             <span class="profile_username">@{{ profile.username }}</span>
-            <span class="profile_about">{{ profile.about | default('This user has yet to tell about themselves', true) }} </span>
+            <span class="profile_about">{{ profile.about | default('This user has yet to tell about themselves', true) }}</span>
 
-        
+            <textarea id="update_about"></textarea>
+
             <br>
-            <a class="follow-indicator" href="/u/{{ profile.username}}/following">{{ profile.following_count }} <span>Following</span></a> <a class="follow-indicator" href="/u/{{ profile.username}}/followers">{{ profile.follower_count }} <span>Followers</span></a>
+            <a class="follow-indicator" href="/u/{{ profile.username}}/following">{{ profile.following_count }}<span>Following</span></a><a class="follow-indicator" href="/u/{{ profile.username}}/followers">{{ profile.follower_count }}<span>Followers</span></a>
 
         </div>
         <hr><br>
@@ -88,52 +100,62 @@
 
 {% block script %}
 
-	
+    <!-- If profile is self -->
     {% if profile and profile.user_id == user.id %}
             <script>
-                document.getElementById("updatePFP").onclick = function(){
+                const updatePFP = document.getElementById("updatePFP");
+                const updateBanner = document.getElementById("updateBanner");
+
+                async function inputImage(address){
                     var input = document.createElement('input');
                     input.type = 'file';
-                    input.accept = '.png,.jpg,.jpeg'
+                    input.accept = '.png, .jpg, .jpeg'
 
-                    input.onchange = function(e) {
+                    input.onchange = async function(e) {
                         var file = e.target.files[0];
                         if (!file) return;
-
-                        // const imageUrl = URL.createObjectURL(file);
-                        // document.querySelector('.large_pfp').src = imageUrl;
                         
                         var formData = new FormData();
                         formData.append('picture', file);
                         console.log(file)
                         
-                        uploadImage(formData);
+                        await uploadImage(address, formData);
                     };
 
                     input.click();
-                    
-                    async function uploadImage(formData) {
-                        try {
-                            const response = await fetch('/api/update-pfp', {
-                                method: 'POST',
-                                body: formData,
-                            });
+                };
 
-                            const result = await response.json();
-                            console.log('Success:', result);
-                            if (result["ok"] === true){
-                                window.location.reload();
-                            }
-                        } catch (error) {
-                            console.error('Error uploading:', error);
+                updatePFP.onclick = async function(){
+                    await inputImage('/api/update-pfp');
+                };
+
+                updateBanner.onclick = async function(){
+                    await inputImage('/api/update-banner');
+                };
+
+                async function uploadImage(address, formData) {
+                    try {
+                        const response = await fetch(address, {
+                            method: 'POST',
+                            body: formData,
+                        });
+
+                        const result = await response.json();
+                        console.log('Success:', result);
+                        if (result["ok"] === true){
+                            window.location.reload();
                         }
-                    }
-                }
+                    } catch (error) {
+                        console.error('Error uploading:', error);
+                    };
+                };
             </script>
     {% endif %}
 
+
     {{ feed.script({"profile_username": profile.username}) }}
     
+
     {% if profile %}
         <script>
             const feed_posts = document.getElementById('feed_posts');
@@ -177,40 +199,44 @@
             initState();
         </script>
 
-        <script>
-            const follow_button = document.getElementById('follow');
 
-            follow_button.onclick = async function(){
-                if (follow_button.innerText == "Follow"){
-                    // Request and return if un ok
-                    const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
-                    if (!result?.ok == true){ return };
+        {% if profile.user_id != user.id %}
+            <!-- Script to follow if profile is able to be followed -->
+            <script>
+                const follow_button = document.getElementById('follow');
 
-                    follow_button.innerText = "Following"
+                follow_button.onclick = async function(){
+                    if (follow_button.innerText == "Follow"){
+                        // Request and return if un ok
+                        const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
+                        if (!result?.ok == true){ return };
 
-                    // Add mouseover functions for UX
-                    follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
-                    follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };
-                }else{
-                    // Request and return if un ok
-                    const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
-                    if (!result?.ok == true){ return };
+                        follow_button.innerText = "Following"
 
-                    // Remove mouseover functions
-                    follow_button.onmouseover = null;
-                    follow_button.onmouseleave = null;
+                        // Add mouseover functions for UX
+                        follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
+                        follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };
+                    }else{
+                        // Request and return if un ok
+                        const result = await jsonQuery('/api/follow-user', JSON.stringify({"user_id": '{{ profile.user_id }}'}));
+                        if (!result?.ok == true){ return };
 
-                    // Update Text
-                    follow_button.innerText = "Follow"
+                        // Remove mouseover functions
+                        follow_button.onmouseover = null;
+                        follow_button.onmouseleave = null;
+
+                        // Update Text
+                        follow_button.innerText = "Follow"
+                    };
                 };
-            };
 
-            // If following on page load at mouse over functions
-            if (follow_button.innerText != "Follow"){	
-                follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
-                follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };	
-            }
-        </script>
+                // If following on page load at mouse over functions
+                if (follow_button.innerText != "Follow"){	
+                    follow_button.onmouseover = function(){ follow_button.innerText = "Unfollow" };
+                    follow_button.onmouseleave = function(){ follow_button.innerText = "Following" };	
+                }
+            </script>
+        {% endif %}
     {% endif %}
 
     {% include "partials/tabs.njk" %}
