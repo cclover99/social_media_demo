@@ -71,10 +71,9 @@
 }
 
 #posts .post .action-buttons{
-
     display: grid;
     height: auto;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
 
     margin-top: 20px;
     gap: 10px;

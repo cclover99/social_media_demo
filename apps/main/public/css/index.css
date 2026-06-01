@@ -1,15 +1,15 @@
 #feedToggle{
-    top: 75px;
+    top: 74px;
     position: sticky;
     display: grid; 
     grid-template-columns: 1fr 1fr;
-    margin-bottom: 20px;
+    margin-bottom: 17px;
     gap: 10px;
 
     box-shadow: 0 0 0 8px #f1f1f1;
 
     background-color: #f1f1f1;
-    margin-top: -3px;
+    margin-top: -4px;
 }
 
 #feedToggle > button{
@@ -19,16 +19,14 @@
     border: none;
 }
 
-#feedToggle > button.active:not([disabled]){
-    background-color: #007bff;
-    color:white;   
-    cursor: grab !important;
-}
 
-
-.active-tab{
+.active-tab:not([disabled]){
     background-color: #5ba3f0;
     color: white;
+}
+
+#feedToggle > button.active-tab:not([disabled]):hover{
+    background-color: #4c97e7;
 }
 
 @media (width < 800px) {
