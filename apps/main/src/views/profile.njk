@@ -50,8 +50,8 @@
                     
                 {% endif %}
                 {% if profile.user_id != user.id %}
-                    <button id="follow">{% if is_following %}Following{% else %}Follow{% endif %}</button> 
-                    <button>Message</button>
+                    <button {% if not user %}disabled{% endif %} id="follow">{% if is_following %}Following{% else %}Follow{% endif %}</button> 
+                    <button {% if not user %}disabled{% endif %} >Message</button>
                 {% endif %}
             </div>
 
@@ -68,9 +68,9 @@
         <hr><br>
 
         <div id="feedToggle" class="tab">
-            <button id="feed_posts" class="tablinks" onclick="toggleTab(event, 'posts-tab'); history.pushState({}, '', '/u/{{ profile.username }}');">Posts</button>
-            <button id="feed_replies" class="tablinks" onclick="toggleTab(event, 'replies-tab'); history.pushState({}, '', '/u/{{ profile.username }}/replies');">Replies</button>
-            {% if profile.user_id == user.id %} <button id="feed_likes" class="tablinks" onclick="toggleTab(event, 'likes-tab'); history.pushState({}, '', '/u/{{ profile.username }}/likes');">Likes</button>{% endif %}
+            <button id="feed_posts" class="tablinks" onclick="toggleTab(event, 'posts-tab'); history.replaceState({}, '', '/u/{{ profile.username }}');">Posts</button>
+            <button id="feed_replies" class="tablinks" onclick="toggleTab(event, 'replies-tab'); history.replaceState({}, '', '/u/{{ profile.username }}/replies');">Replies</button>
+            {% if profile.user_id == user.id %} <button id="feed_likes" class="tablinks" onclick="toggleTab(event, 'likes-tab'); history.replaceState({}, '', '/u/{{ profile.username }}/likes');">Likes</button>{% endif %}
         </div>
 
 
