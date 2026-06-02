@@ -3,14 +3,22 @@
     <link rel="stylesheet" href="/css/feed.css">
     <link rel="stylesheet" href="/css/postmaker.css">
 
-    {% if process.env.NODE_ENV == 'development' %}
+    <!-- Include videojs 10 -->
+    {% if NODE_ENV == '// development' %} 
         <script type="module" src="{{ CDN_HOST }}/js/video-bundle.js"></script>
-    {% else %}
-        <script type="module" src="{{ CDN_HOST }}/dist/video-bundle.js"></script>
+    {% else %} 
+        <script type="module" src="{{ CDN_HOST }}/dist/video-bundle.js"></script> 
     {% endif %}
+
+    <!-- Include postCard template -->
+    {% if NODE_ENV == '// development' %} 
+        <script type="module" src="{{ CDN_HOST }}/js/nunjucks-bundle.js"></script>
+    {% else %} 
+        <script type="module" src="{{ CDN_HOST }}/dist/nunjucks-bundle.js"></script> 
+    {% endif %}
+
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/html/cdn/video.css"> -->
     <link rel="stylesheet" href="{{ CDN_HOST }}/css/video-minimal-skin.css">
-
 {% endset %}
 
 
@@ -229,8 +237,14 @@
     </script>
 
     <script>
-        function createNJKPostCard(){
-
+        function createNJKPostCard(data){
+            data.avatar = data.profile_pic
+            let elem = nunjucks.renderString(postCard, {
+                "post": data,
+                "CDN_HOST": '{{ CDN_HOST }}'
+            })
+            // console.log(elem)
+            return elem;
         };
     </script>
 
@@ -241,12 +255,9 @@
                 // If it doesn't exist stop trying to make it exist
                 if (!post) return;
                 
-                if (post?.profile_pic)
-                    post.profile_pic = '{{ CDN_HOST }}/profile_images/'+post.profile_pic
-                else
-                    post.profile_pic = '{{ CDN_HOST }}/images/default.jpg';
-                
-                feed_container.appendChild(createPostElement(post, feed_container));
+                if (post?.profile_pic) post.profile_pic = '{{ CDN_HOST }}/profile_images/'+post.profile_pic; feed_container.appendChild(createPostElement(post, feed_container));
+            
+                // feed_container.innerHTML += (createNJKPostCard(post));
             });
         };
 

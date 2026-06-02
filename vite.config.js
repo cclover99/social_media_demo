@@ -5,10 +5,14 @@ import path from 'path';
 export default defineConfig({
   build: {
     // This tells Vite where to put the final files
-    outDir: 'dist',
+    outDir: path.resolve(__dirname, './apps/shared/dist/'),
     rollupOptions: {
       // This is the CRITICAL part: point it to your JS file
-      input: path.resolve(__dirname, './shared/cdn/js/video-bundle.js'),
+      input: {
+        "video-bundle": path.resolve(__dirname, './apps/shared/public/js/video-bundle.js'),
+        "nunjucks-bundle": path.resolve(__dirname, './apps/shared/public/js/nunjucks-bundle.js'),
+      },
+      
       output: {
         // Keeps the filename as video-bundle.js instead of adding hashes
         entryFileNames: `[name].js`,

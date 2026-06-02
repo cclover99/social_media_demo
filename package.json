@@ -19,7 +19,7 @@
   "scripts": {
     "start": "cross-env node server.js",
     "dev": "cross-env NODE_ENV=development node server.js",
-    "build:js": "vite build --emptyOutDir false"
+    "build": "vite build --emptyOutDir false"
   },
   "devDependencies": {
     "vite": "^8.0.11"
