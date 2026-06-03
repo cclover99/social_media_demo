@@ -176,8 +176,8 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
 
     // If session needs to update then update
     if (displayname || username){
-        req.session.username = username || req.session.username;
-        req.session.displayname = displayname || req.session.displayname;
+        req.session.user.username = username || req.session.user.username;
+        req.session.user.displayname = displayname || req.session.user.displayname;
 
         req.session.save(err => {
             if (err) console.error(err);
