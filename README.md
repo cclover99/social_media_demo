@@ -7,8 +7,6 @@
 <br>
 
 ### Planned Features
-- [ ] Docker container CI/CD pipeline
-- [ ] Decoupled object storage with Cloudflare R2
 - [ ] Private DMs
 - [ ] RBAC Admin dashboard
 - [ ] Custom video player
@@ -18,11 +16,16 @@
 
 <br>
 
-### Installation:  
+## Installation:  
 
 ``` 
 git clone https://github.com/ccloverdev/social_media_demo.git
 ```
+#### Development:
+```
+npm build && npm run dev
+```
+#### Production
 ```
 docker compose up -d --build
 ```
