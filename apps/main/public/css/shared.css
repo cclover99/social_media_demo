@@ -61,7 +61,7 @@ button:not([disabled]):hover{
     background-color: #d0d0d7;
 }
 
-.button_danger:not([disabled]):hover{
+.button-danger:not([disabled]):hover{
     background-color: #df5367;
     color: white;
 }
