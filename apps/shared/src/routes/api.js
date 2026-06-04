@@ -113,7 +113,6 @@ router.post('/delete-pfp', loginService.isLoggedIn, async (req, res) => {
 router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     const { about, username, displayname, email } = req.body;
 
-
     // If updated info must be unique do checks
     if ( username || email){
         let [subQuery] = await db.execute('SELECT username, email FROM users WHERE username = ? OR email = ?', [username || '', email || '']);
@@ -140,7 +139,7 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     let set = [];
     let parameters = [];
 
-    if (about) {
+    if (about || about === '') {
         set.push('about = ?');
         parameters.push(about);
     };
@@ -172,7 +171,12 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     
 
     // console.log(query, parameters);
-    await db.execute(query, parameters)
+    if ((about || about === '' )|| username || displayname || email){
+        await db.execute(query, parameters);
+    }else{
+        return res.json({ "ok": false });
+    };
+        
 
     // If session needs to update then update
     if (displayname || username){
