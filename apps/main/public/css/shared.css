@@ -81,6 +81,40 @@ button:not([disabled]):hover{
     
 }
 
+.page-end-bg{
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: calc(var(--body-width));
+    position: fixed;
+    
+    bottom: 0px;
+    height: 18px;
+    background-color: #e2e2e2;
+}
+
+.page-end-bg::before,
+.page-end-bg::after {
+  content: "";
+  position: absolute;
+  top: calc( var(--radius) * -1);
+  /* top: calc( ( var(--radius) * -1 ) - 10px);  */
+  /* top: 0px; */
+  
+  width: var(--radius);
+  height: var(--radius);
+}
+
+.page-end-bg::before {
+  left: 0;
+  background: radial-gradient(circle at top right, #f1f1f1 var(--radius), #e2e2e2 0);
+}
+
+.page-end-bg::after {
+  right: 0;
+  background: radial-gradient(circle at top left, #f1f1f1 var(--radius), #e2e2e2 0);
+}
+
 header{
     height: 37px;
     position: sticky;
@@ -246,6 +280,10 @@ header .usercard-username{
 
     .header-bg{
         height: 48px;
+    }
+
+    .page-end-bg{
+        display: none;
     }
 
     body > main{
