@@ -85,6 +85,10 @@
             let answer = await jsonQuery('/api/update-data', JSON.stringify(formData));
 
             if (answer.ok == true){
+                // Update header usercard name and link
+                document.getElementById("cardUserName").innerText = '@'+username.value
+                document.getElementById("cardLink").href = `/u/${username.value}`
+
                 result.innerText = 'Your details have been updated';
 
                 initialValues = {
