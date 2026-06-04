@@ -19,9 +19,9 @@
             </div>
             <div>
                
-                <a href="/u/{{ user.username }}" class="usercard" draggable="false">
+                <a id="cardLink" href="/u/{{ user.username }}" class="usercard" draggable="false">
                     <img class="header-pfp" src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else CDN_HOST + '/images/default.jpg' }}"> 
-                    <span class="usercard-displayname">{{ user.displayname }}</span> <span class="usercard-username">@{{ user.username}}</span>
+                    <span id="cardDisplayName" class="usercard-displayname">{{ user.displayname }}</span> <span id="cardUserName" class="usercard-username">@{{ user.username}}</span>
                 </a>
                  <button onclick="window.location = '/settings'" type="submit" class="header-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

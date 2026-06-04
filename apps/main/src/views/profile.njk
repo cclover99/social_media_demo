@@ -40,7 +40,6 @@
                     </button>
                 {% endif %}
             </div>
-
             
             <div class="profile_buttons">
                 {% if profile.user_id == user.id %}
@@ -55,12 +54,35 @@
                 {% endif %}
             </div>
 
-            <span class="profile_displayname">{{ profile.display_name }}</span>     
+            {% if profile.user_id == user.id %}
+                <span id="displayName" class="profile_displayname profile-editable">
+                    {{ profile.display_name }}<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                        <g fill="none" fill-rule="evenodd"><path d="m0 0h32v32h-32z"/><path d="m13.4972619-.65685425h4c1.1045695 0 2 .8954305 2 2v23.66314045c0 .6440327-.1555097 1.2785431-.4533088 1.8495895l-3.0006899 5.7539905c-.153225.2938175-.5156245.4077902-.8094421.2545652-.1127518-.0587998-.2039066-.1519019-.2603101-.2658713l-3.0612398-6.1855586c-.2729885-.5516022-.4150093-1.1587586-.4150093-1.7742159v-23.29563985c0-1.1045695.8954305-2 2-2z" fill="#202327" transform="matrix(.70710678 .70710678 -.70710678 .70710678 16.206305 -6.125481)"/></g>
+                    </svg>
+                </span>
+                <input type="text" id="updateDisplayName" value="{{ profile.display_name }}" autocomplete="false">
+                <button id="nameConfirm">Confirm</button>
+                <button id="nameCancel" class="button-danger">Cancel</button>
+            {% else %}
+                <span class="profile_displayname">{{ profile.display_name }} </span>
+            {% endif %}
+
             <span class="profile_username">@{{ profile.username }}</span>
-            <span class="profile_about">{{ profile.about | default('This user has yet to tell about themselves', true) }}</span>
-
-            <textarea id="update_about"></textarea>
-
+                
+            {% if profile.user_id == user.id %}
+                <span id="bio" class="profile_about profile-editable">
+                    {{ profile.about | default('This user has yet to tell about themselves', true) }}<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                        <g fill="none" fill-rule="evenodd"><path d="m0 0h32v32h-32z"/><path d="m13.4972619-.65685425h4c1.1045695 0 2 .8954305 2 2v23.66314045c0 .6440327-.1555097 1.2785431-.4533088 1.8495895l-3.0006899 5.7539905c-.153225.2938175-.5156245.4077902-.8094421.2545652-.1127518-.0587998-.2039066-.1519019-.2603101-.2658713l-3.0612398-6.1855586c-.2729885-.5516022-.4150093-1.1587586-.4150093-1.7742159v-23.29563985c0-1.1045695.8954305-2 2-2z" fill="#202327" transform="matrix(.70710678 .70710678 -.70710678 .70710678 16.206305 -6.125481)"/></g>
+                    </svg>
+                </span>
+                
+                <textarea type="text" id="updateAbout" autocomplete="false"></textarea>
+                <button id="bioConfirm">Confirm</button>
+                <button id="bioCancel" class="button-danger">Cancel</button>
+            {% else %}
+                <span class="profile_about">{{ profile.about | default('This user has yet to tell about themselves', true) }}</span>
+            {% endif %}
+            
             <br>
             <a class="follow-indicator" href="/u/{{ profile.username}}/following">{{ profile.following_count }}<span>Following</span></a><a class="follow-indicator" href="/u/{{ profile.username}}/followers">{{ profile.follower_count }}<span>Followers</span></a>
 
@@ -147,6 +169,110 @@
 
         <!-- If profile is self -->
         {% if profile and profile.user_id == user.id %}
+            <script>
+                // Name change vars
+                const displayName = document.getElementById("displayName");
+                const displayNameField = document.getElementById("updateDisplayName");
+                const nameConfirm = document.getElementById("nameConfirm");
+                const nameCancel = document.getElementById("nameCancel");
+                let initialName = '{{ profile.display_name }}';
+
+                // Bio change vars
+                const bio = document.getElementById("bio");
+                const bioField = document.getElementById("updateAbout");
+                const bioConfirm = document.getElementById("bioConfirm");
+                const bioCancel = document.getElementById("bioCancel");
+                let initialBio = '{{ profile.about }}';
+                bioField.value = initialBio;
+            </script>
+            <!-- Update Display Name -->
+            <script>
+                displayName.onclick = function(){
+                    displayName.style.display = "none";
+                    displayNameField.style.display = "inline-block";
+
+                    nameConfirm.style.display = "inline-block";
+                    nameCancel.style.display = "inline-block";
+
+                    displayNameField.focus();
+                    const valLength = displayNameField.value.length;
+                    displayNameField.setSelectionRange(valLength, valLength);
+                };
+
+                nameConfirm.onclick = async function(){
+                    const result = await jsonQuery('/api/update-data', JSON.stringify({"displayname": displayNameField.value}));
+                    if (result.ok != true) return;
+
+                    displayName.innerText = displayNameField.value;
+                    initialName = displayNameField.value;
+
+                    // Update header usercard
+                    document.getElementById("cardDisplayName").innerText = displayNameField.value;
+                    
+
+                    displayName.style.display = "inline-block";
+                    displayNameField.style.display = "none";
+
+                    nameConfirm.style.display = "none";
+                    nameCancel.style.display = "none";
+                };
+
+                nameCancel.onclick = function(){
+                    displayNameField.value = initialName;
+
+                    displayName.style.display = "inline-block";
+                    displayNameField.style.display = "none";
+
+                    nameConfirm.style.display = "none";
+                    nameCancel.style.display = "none";
+                };
+            </script>
+
+            <!-- Update Bio -->
+            <script>
+                
+                bio.onclick = function(){
+                    bio.style.display = "none";
+                    bioField.style.display = "block";
+
+                    bioConfirm.style.display = "inline-block";
+                    bioCancel.style.display = "inline-block";
+
+                    bioField.focus();
+                    const valLength = bioField.value.length;
+                    bioField.setSelectionRange(valLength, valLength);
+                };
+
+                bioConfirm.onclick = async function(){
+                    const result = await jsonQuery('/api/update-data', JSON.stringify({"about": bioField.value}));
+                    if (result.ok != true) return;
+
+                    if(bioField.value === ''){
+                        bio.innerText = 'This user has yet to tell about themselves';
+                    }else{
+                        bio.innerText = bioField.value;
+                    };
+                    initialBio = bioField.value;
+                    
+                    bio.style.display = "inline-block";
+                    bioField.style.display = "none";
+
+                    bioConfirm.style.display = "none";
+                    bioCancel.style.display = "none";
+                };
+
+                bioCancel.onclick = function(){
+                    bioField.value = initialBio;
+
+                    bio.style.display = "inline-block";
+                    bioField.style.display = "none";
+
+                    bioConfirm.style.display = "none";
+                    bioCancel.style.display = "none";
+                };
+            </script>
+
+            <!-- Update Banner and Avatar -->
             <script>
                 const updatePFP = document.getElementById("updatePFP");
                 const updateBanner = document.getElementById("updateBanner");

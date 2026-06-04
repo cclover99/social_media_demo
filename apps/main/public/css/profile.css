@@ -88,9 +88,9 @@
 }
 
 
-#update_about{
-    width: calc(100% - 15px);
-    resize: vertical;
+#updateAbout{
+    width: 400px;
+    resize: none;
     display: none;
 }
 
@@ -136,12 +136,24 @@
     margin-bottom: 20px;
 }
 
-.profile_displayname{
-    font-weight: 500;
-    display: block;
+.profile_displayname, #updateDisplayName{
+    display: inline-block;
     margin-top: 20px;
     margin-bottom: 0px;
+}
+
+.profile_displayname{
     font-size: 1.4rem;
+    font-weight: 500;
+    margin-bottom: 1px;
+}
+
+#updateDisplayName{
+    margin-top: 19px;
+    font-weight: 400;
+    margin-left: -2px;
+    font-size: 1.4rem;
+    
 }
 
 .profile_username{
@@ -162,6 +174,38 @@
     top: 20px;
     right: 10px;
 }
+
+.profile-editable{
+    
+}
+
+.profile-editable:hover{
+    cursor: pointer;
+    width: auto;
+}
+
+.profile-editable:hover > svg{
+    visibility: visible;
+}
+
+#updateDisplayName, #updateAbout{
+    border: none;
+    border-radius: 5px;
+}
+
+#updateDisplayName:focus, #updateAbout:focus{
+    outline: none;
+}
+
+.profile-editable svg{
+    visibility: hidden;
+    height: 1rem;
+    vertical-align: middle;
+    margin-left: 5px;
+
+}
+
+
 
 #feedToggle{
     position: sticky;
@@ -187,15 +231,45 @@
     background-color: #4c97e7;
 }
 
-#editConfirm:hover{
-    color: white;
-    background-color: #5ba3f0;
+
+/* Name & Bio styling */
+#bio{
+    min-width: 0.5rem;
+    display: inline-block;
+    margin-bottom: 18px;
+    max-width: 400px;
 }
 
-#editCancel:hover{
-    color: white;
-    background-color: #df5353;
+
+
+/* Name & Bio Editing */
+#updateAbout, #updateDisplayName{
+    field-sizing: content;
 }
+
+#updateAbout{
+    margin-top: -1px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+#bioConfirm, #bioCancel{
+    margin-bottom: 16px;
+}
+
+#updateDisplayName{
+    
+}
+
+#updateDisplayName{
+    display: none;
+}
+
+#nameConfirm, #nameCancel, #bioConfirm, #bioCancel{
+    display: none;
+}
+
+/* -- */
 
 
 
@@ -208,5 +282,14 @@
         border-width: 2px;
 
         margin-bottom: calc(var(--self-displacement) - 14px);
+    }
+
+    #bio{
+        max-width: calc(100% - 15px);
+    }
+
+    #updateAbout{
+        width: calc(100% - 15px);
+        
     }
 }
