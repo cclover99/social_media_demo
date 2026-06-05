@@ -42,6 +42,7 @@ const mainEnv = nunjucks.configure(
 mainEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
 mainEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);
 mainEnv.addGlobal('NODE_ENV', process.env.NODE_ENV || '');
+mainEnv.addFilter('json', (str) => JSON.parse(str));
 // mainApp.engine('njk', mainEnv.express);
 
 
@@ -57,6 +58,7 @@ const dashboardEnv = nunjucks.configure(
 dashboardEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
 dashboardEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);   
 dashboardEnv.addGlobal('NODE_ENV', process.env.NODE_ENV || '');
+dashboardEnv.addFilter('json', (str) => JSON.parse(str));
 // dashboardApp.engine('njk', dashboardEnv.express);
 
 
