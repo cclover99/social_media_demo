@@ -43,6 +43,7 @@ mainEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
 mainEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);
 mainEnv.addGlobal('NODE_ENV', process.env.NODE_ENV || '');
 mainEnv.addFilter('json', (str) => JSON.parse(str));
+mainEnv.addFilter('date', (str) => new Date(str).toLocaleString())
 // mainApp.engine('njk', mainEnv.express);
 
 
@@ -59,6 +60,7 @@ dashboardEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
 dashboardEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);   
 dashboardEnv.addGlobal('NODE_ENV', process.env.NODE_ENV || '');
 dashboardEnv.addFilter('json', (str) => JSON.parse(str));
+dashboardEnv.addFilter('date', (str) => new Date(str).toLocaleString())
 // dashboardApp.engine('njk', dashboardEnv.express);
 
 
