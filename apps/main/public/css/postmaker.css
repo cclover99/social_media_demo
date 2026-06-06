@@ -43,61 +43,11 @@
     user-select: none;
 }
 
-.postMaker #mediaPreview{
-    margin-top: 10px;
-    background-color: #f5f5f5;
-    border-radius: 5px;
-    text-align: left; 
-
-    display: flex;
-    
-    justify-content: center; 
-    
-    flex-wrap: wrap;
+.postMaker #mediaPreview > div{
+    display: contents;
 }
 
-.postMaker #mediaPreview > div:has(img){
-    position: relative;
-    display: inline-block;
-    vertical-align: middle;
-
-    margin: 10px;
-
-    justify-content: center; 
-}
-
-
-/* Span element used as button */
-.postMaker #mediaPreview > div:has(img) > span{
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background-color: #df5367;
-    color: white;
-    border-radius: 4px;
-    
-    font-size: small;
-    visibility: hidden;
-    cursor: pointer;
-
-    display: flex;
-
-    width: 20px;
-    height: 20px;
-    justify-content: center; 
-    align-items: center;
-}
-
-.postMaker #mediaPreview > div:has(img):hover > span{
-    visibility: visible;
-}
-
-
-/* Img Element */
-.postMaker #mediaPreview img{
-    border-radius: 5px;
-    max-width: 250px;
-    max-height: 300px;
+.postMaker #mediPreview > div > span{
     display: block;
 }
 

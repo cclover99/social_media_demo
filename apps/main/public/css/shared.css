@@ -263,6 +263,10 @@ header .usercard-username{
     color: rgb(226, 243, 255);
 }
 
+.tab{
+    z-index: 1;
+}
+
 
 @media (width < 800px) {
     :root{

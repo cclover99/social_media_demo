@@ -8,7 +8,7 @@
             maxlength="400"></textarea>
         <input autocomplete = "off" id="media-input" name="media" type="file" multiple accept="image/jpeg,image/png,image/gif,image/webp,image/avif,image/bmp,video/mp4" hidden>
         
-        <div id="mediaPreview"></div>
+        <div class="gallery" id="mediaPreview"></div>
 
         <div style="text-align: right; margin-top: 10px;">
             <span
@@ -41,10 +41,13 @@
         // document.getElementById("mediaPreview").innerHTML = '';
         for (filename of e.target.files){
             const objectURL = URL.createObjectURL(filename);
-            document.getElementById("mediaPreview").innerHTML += `<div><img src="${objectURL}"><span>X</span></div>`;
+            document.getElementById("mediaPreview").innerHTML += `<div><img src="${objectURL}"></div>`;
         };
+
+        document.getElementById('mediaPreview').setAttribute('media-count', e.target.files.length)
         
-        formData.append('pictures', file);
+        // formData.append('pictures', file);
+        formData.set('pictures', file);
 
         // console.log(e.target.files);
     };

@@ -13,11 +13,11 @@
         {% endif %}
     </div>
     {% if post.content %}
-        <span style="cursor: text;">{{ post.content }}</span>
+        <span>{{ post.content }}</span>
     {% endif %}
     
     {% if post.media %}
-        <div id="gallery">
+        <div class="gallery" media-count="{{ post.media | json | length }}">
             {% for image in post.media | json %}
                 <img src="{{ CDN_HOST }}/media/{{ image }}">
             {% endfor %}
