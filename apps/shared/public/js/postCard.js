@@ -84,8 +84,7 @@ document.querySelector('.deleteButton')?.addEventListener('click', async (event)
 
     const result = await jsonQuery('/api/delete-post', JSON.stringify({"post_id": postId}));
 
-    if (result?.ok == true){ 
-        window.history.back();
+    if (result?.ok == true){ ;
         if (document.referrer) {
             // Redirect to the exact previous URL, forcing a fresh load
             window.location.replace(document.referrer);
