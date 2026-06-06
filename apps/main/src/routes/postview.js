@@ -29,8 +29,6 @@ router.get('/:username/post/:postid', async (req, res) => {
         WHERE p.post_id = ?
     `, [req.session.user?.id || -1, req.session.user?.id || -1, (isNaN(postid) ? -1 : postid)] ) )[0] || null;
 
-    if (!data) console.log('post not found')
-
     return res.render('post', {"user": req.session.user, "post": data});
 });
 
