@@ -1,14 +1,14 @@
 window.addEventListener('pointerdown', (event) => {
-  if (event.button === 1) {
-    event.preventDefault(); 
-  }
+    const post = event.target.closest('.post');
+    if (event.button === 1 && post) {
+        event.preventDefault(); 
+    };
 });
 
 window.addEventListener('pointerup', async (event) => {
         const button = event.target.closest('[data-action="bookmark"], [data-action="like"], [data-action="repost"]');
         const post = event.target.closest('.post');
-        
-        if (!button && !post || ![0, 1].includes(event.button)) return;
+        if (!button && !post || ![0, 1].includes(event.button) || post?.classList.contains('detailed-view')) return;
         
         if (post && !button){
             // Don't if there's selection
@@ -82,9 +82,10 @@ document.querySelector('.deleteButton')?.addEventListener('click', async (event)
     
     const postId = event.currentTarget.closest('.post')?.getAttribute('post-id');
 
-
     const result = await jsonQuery('/api/delete-post', JSON.stringify({"post_id": postId}));
+
     if (result?.ok == true){ 
+        window.history.back();
         if (document.referrer) {
             // Redirect to the exact previous URL, forcing a fresh load
             window.location.replace(document.referrer);
