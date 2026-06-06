@@ -21,6 +21,7 @@
 }
 
 #posts .post{
+    position: relative;
     width: 100%;
     padding: 15px;
     box-sizing: border-box;
@@ -32,6 +33,7 @@
 }
 
 #posts #gallery{
+    user-select: none;
     border-radius: 5px;
     width: auto;
     margin: 0px;
@@ -58,11 +60,13 @@
 }
 
 #posts .deleteButton{
+    position: absolute;
+    right: 15px;
     border: none;
     border-radius: 5px;
     font-size: 0.8rem;
     
-    margin-top: 8px;
+    margin-top: 2px;
 }
 
 #posts .deleteButton:hover{
@@ -103,7 +107,7 @@
 }
 
 
-.postContainer{
+.post{
     box-sizing: border-box;
     
     display: block;
@@ -116,23 +120,23 @@
 
     border-radius: 5px;
 
-    background-color: #ffffff; 
+    background-color: #ffffff;
 }
 
-.postContainer:not(.detailed-view):hover{
+.post:not(.detailed-view):hover{
     cursor: pointer;
     background-color: #f7f7f7;
 }
 
-.postContainer.detailed-view:hover{
+.post.detailed-view:hover{
     background-color: #ffffff; 
 }
 
-.postContainer:first-of-type{
+.post:first-of-type{
     margin-top: 0px;
 }
 
-.postContainer:last-of-type{
+.post:last-of-type{
     margin-bottom: 0px;
 }
 

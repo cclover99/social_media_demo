@@ -44,201 +44,14 @@
 
 {# Shared code #}
 {% macro _script(data = {}) %}
-<script src="{{ CDN_HOST }}/js/video-maker.js"></script>
-<script>
-        // Will be redone in CSR njk asap
-        function createPostElement(data, feed_container){
-            
-            const buttonContainer = document.createElement("div");
-            buttonContainer.classList.add("postContainer")
-
-            buttonContainer.setAttribute("post-id", data.post_id)
-
-            const divContainer = document.createElement("div");
-            divContainer.classList.add("post")
-
-            const userAvatar = document.createElement("img");
-            userAvatar.src = data.profile_pic;
-            userAvatar.classList.add("inline-pfp")
-
-            const usernameLink = document.createElement("a");
-            usernameLink.href = `/u/${data.username}`;
-            usernameLink.appendChild(userAvatar);
-            usernameLink.appendChild(document.createTextNode(data.username));
-            usernameLink.style.float = "left";
-
-            const postDate = document.createElement("span");
-            postDate.style.float = "right";
-
-            const postDateSmall = document.createElement("small");
-            postDateSmall.textContent = new Date(data.publish_date).toLocaleString();        
-
-            const gallery = document.createElement("div");
-            gallery.id = "gallery";
-            for (const m of JSON.parse(data.media || "[]")){
-
-                let media_dom;
-                
-                if (m.split(".")[1] == "mp4" ){
-                    media_dom = document.createElement("video-player");
-
-                    media_dom.innerHTML = inlineVideoPlayer(`{{ CDN_HOST }}/media/${m}`);
-                }else{
-                    media_dom = document.createElement("img");
-                    media_dom.src = `{{ CDN_HOST }}/media/${m}`;
-                }
-
-                gallery.appendChild(media_dom);
-            };
-            
-            const postContent = document.createElement("span")
-            postContent.textContent = data.content;            
-            
-            // Prevent middle click from activating scroll toggle
-            buttonContainer.addEventListener("pointerdown", (e) => { if (e.button === 1) { e.preventDefault(); e.stopPropagation() } });
-
-            // Relocate to post page on pointerup
-            buttonContainer.addEventListener("pointerup", (e) => {
-
-                // Only accept left or middle  mouse button
-                if (![0, 1].includes(e.button)) return; 
-
-                // Also don't run if its clicking the media or a button
-                const shouldIgnore = e.target.closest('media-container, button');
-                if (shouldIgnore) return;
-
-                // Don't if there's selection
-                const sel = window.getSelection();
-                const text = sel ? sel.toString().trim() : "";
-                const hasSelectionInside = text && sel.rangeCount > 0 && buttonContainer.contains(sel.anchorNode) && buttonContainer.contains(sel.focusNode);
-                if (hasSelectionInside) {console.log('selection'); return};
-
-                const new_url =  `/u/${data.username}/post/${data.post_id}`;
-
-                // If middle click open in new tab
-                if (e.button === 1) { e.preventDefault(); e.stopPropagation(); window.open(new_url, '_blank', 'noopener') }
-                // If m1 change url
-                else{ window.location.href = new_url };
-            });
-            
-
-            postDate.appendChild(postDateSmall);
-
-            const topContainer = document.createElement("div");
-            topContainer.style.height = "auto";
-            topContainer.style.overflow = "hidden";
-            topContainer.appendChild(usernameLink);
-            topContainer.appendChild(postDate);
-            topContainer.appendChild(document.createElement("br"));
-
-            
-            if ("{{ data.user_id }}" == data.author_id && feed_container.getAttribute('data-feed') == "detailed"){
-                const  deleteButton = document.createElement("button");;
-
-                deleteButton.onclick = async function(){
-                    const result = await jsonQuery('/api/delete-post', JSON.stringify({"post_id": data.post_id}));
-                    if (result?.ok == true){ 
-                        if (document.referrer) {
-                            // Redirect to the exact previous URL, forcing a fresh load
-                            window.location.replace(document.referrer);
-                        } else {
-                            // Fallback in case there is no referrer history
-                            window.history.back();
-                        };
-                    };  
-                };
-
-                deleteButton.style.float = "right"; 
-
-                deleteButton.innerText = "Delete Post";
-                deleteButton.classList.add("deleteButton");
-
-                topContainer.appendChild(deleteButton);
-            }
-
-            divContainer.appendChild(topContainer);
-
-            // Like
-            const  likeButton = document.createElement("button");;
-            if (data.is_liked)
-                likeButton.classList.add('isLiked');
-
-            likeButton.onclick = async function(){ 
-                let result = await jsonQuery('/api/like-post', JSON.stringify({"post_id": data.post_id}));
-                // If anything were to go wrong with the query then return
-                if (!result?.ok == true){ return }
-                
-                likeButton.classList.toggle('isLiked');
-
-                const count = parseInt(likeButton.innerText.match(/\d+/)?.[0] || "0", 10);
-                
-                let isLiked = !likeButton.classList.contains('isLiked');
-                const newCount = isLiked ? count - 1 : count + 1;
-                likeButton.innerText = `Like ${newCount}`;
-            };
-            likeButton.innerText = `Like ${data.like_count}`;
-            // 
-
-            // Repost
-            const  repostButton = document.createElement("button");;
-            repostButton.innerText = "Repost"
-            // 
-
-            // Reply
-            const  replyButton = document.createElement("button");;
-            replyButton.innerText = `Reply ${data.comment_count}`;
-            
-            replyButton.onclick = function(e) {
-                // Only accept left  mouse button
-                if (e.button != 0) return; 
-                const new_url =  `/u/${data.username}/post/${data.post_id}`;
-                window.location.href = new_url;
-            };
-            
-            
-         
-
-            // Bookmark
-            const  bookmarkButton = document.createElement("button");;
-            if (data.is_bookmarked)
-                bookmarkButton.classList.add('isBookmarked');
-
-            bookmarkButton.onclick = async function(){ 
-                let result = await jsonQuery('/api/bookmark-post', JSON.stringify({"post_id": data.post_id}));
-                // If anything were to be not ok then return
-                if (!result?.ok == true){ return }
-                
-                bookmarkButton.classList.toggle('isBookmarked');
-            };
-            bookmarkButton.innerText = "Bookmark";
-            //
-
-            if (postContent.textContent)
-                divContainer.appendChild(postContent);
-            
-            if (JSON.parse(data.media || "[]").length)
-                divContainer.appendChild(gallery);
-
-            // Action buttons
-            const action_buttons = document.createElement("div");
-            action_buttons.classList.add("action-buttons")
-            action_buttons.appendChild(likeButton);
-            action_buttons.appendChild(replyButton);
-            action_buttons.appendChild(repostButton);
-            action_buttons.appendChild(bookmarkButton);
-            
-            divContainer.appendChild(action_buttons);
-
-            // Final
-            buttonContainer.appendChild(divContainer);
-
-            return buttonContainer;
-        }
-    </script>
-
+    <script src="{{ CDN_HOST }}/js/video-maker.js"></script>
+   
     <script>
         function createNJKPostCard(data){
-            data.avatar = data.profile_pic
+            // Conversion, unify backend naming convention instead in the future
+            data.avatar = data.profile_pic;
+            data.author_name = data.username;
+
             let elem = nunjucks.renderString(postCard, {
                 "post": data,
                 "CDN_HOST": '{{ CDN_HOST }}'
@@ -255,9 +68,9 @@
                 // If it doesn't exist stop trying to make it exist
                 if (!post) return;
                 
-                if (post?.profile_pic) post.profile_pic = '{{ CDN_HOST }}/profile_images/'+post.profile_pic; feed_container.appendChild(createPostElement(post, feed_container));
+                // if (post?.profile_pic) post.profile_pic = '{{ CDN_HOST }}/profile_images/'+post.profile_pic; feed_container.appendChild(createPostElement(post, feed_container));
             
-                // feed_container.innerHTML += (createNJKPostCard(post));
+                feed_container.innerHTML += (createNJKPostCard(post));
             });
         };
 

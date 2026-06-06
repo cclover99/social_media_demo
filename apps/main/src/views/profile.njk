@@ -123,6 +123,7 @@
 {% block script %}
 
     {{ feed.script({"profile_username": profile.username}) }}
+    <script src="{{ CDN_HOST }}/js/postCard.js"></script>
 
     {% if profile %}
         <script>
@@ -184,10 +185,20 @@
                 const bioCancel = document.getElementById("bioCancel");
                 let initialBio = '{{ profile.about }}';
                 bioField.value = initialBio;
+
+
+                function isElementSelected(element){
+                    const sel = window.getSelection();
+                    const text = sel ? sel.toString().trim() : "";
+                    const hasSelectionInside = text && sel.rangeCount > 0 && element.contains(sel.anchorNode) && element.contains(sel.focusNode);
+                    if (hasSelectionInside) {return true} else {return false};
+                };
+                
             </script>
             <!-- Update Display Name -->
             <script>
                 displayName.onclick = function(){
+                    if (isElementSelected(displayName)) return false;
                     displayName.style.display = "none";
                     displayNameField.style.display = "inline-block";
 
@@ -230,8 +241,8 @@
 
             <!-- Update Bio -->
             <script>
-                
                 bio.onclick = function(){
+                    if (isElementSelected(bio)) return false;
                     bio.style.display = "none";
                     bioField.style.display = "block";
 

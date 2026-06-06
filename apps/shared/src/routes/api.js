@@ -15,6 +15,7 @@ require('dotenv').config();
 // Register
 router.post('/register', async (req, res) => {
     const { email, username, password } = req.body;
+    if (!email || !username || !password) return res.json({ "ok": false });
     
     let [user_exists] = await db.execute('SELECT user_id FROM users WHERE email = ? OR username = ? OR email = ?', [email, username, email]);
 
@@ -36,6 +37,7 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
+    if (!email || !password) return res.json({ "ok": false });
 
     let [[data]] = await db.execute('SELECT user_id, username, display_name, password_hash, profile_pic FROM users WHERE email = ?', [email]);
 
@@ -176,7 +178,7 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     }else{
         return res.json({ "ok": false });
     };
-        
+
 
     // If session needs to update then update
     if (displayname || username){
@@ -217,8 +219,8 @@ router.post('/get-posts', async (req, res) => {
     // If user logged in also check if liked or not
     if(req.session.user?.id){
         query += `
-                , CASE WHEN l.user_id IS NULL THEN 0 ELSE 1 END AS is_liked
-                , CASE WHEN b.user_id IS NULL THEN 0 ELSE 1 END AS is_bookmarked
+                , CASE WHEN l.user_id IS NULL THEN 0 ELSE 1 END AS isLiked
+                , CASE WHEN b.user_id IS NULL THEN 0 ELSE 1 END AS isBookmarked
             FROM posts p 
             JOIN users u ON p.author_id = u.user_id
             LEFT JOIN likes l
@@ -385,6 +387,7 @@ router.post('/create-post', loginService.isLoggedIn, mediaService.postUpload.arr
 
 router.post('/delete-post', async (req, res) => {
     const {post_id} = req.body;
+    if (!post_id) res.json({ "ok": false });
 
     const [[{author_id, parent_post_id, media}]] = (await db.execute('SELECT author_id, parent_post_id, media FROM posts WHERE post_id = ?', [post_id]));
 
@@ -474,6 +477,7 @@ router.post('/delete-account', loginService.isLoggedIn, async (req, res) => {
 
 router.post('/like-post', loginService.isLoggedIn, async (req, res) => {
     const {post_id} = req.body;
+    if (!post_id) res.json({ "ok": false });
 
     const [[is_liked]] = await db.execute("SELECT 1 FROM likes WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
 
@@ -497,6 +501,7 @@ router.post('/bookmark-post', async (req, res) => {
     if (!req.session.user?.id) return res.status(401).json({ error: 'Not logged in' });
 
     const {post_id} = req.body;
+    if (!post_id) res.json({ "ok": false });
 
     const [[is_bookmarked]] = await db.execute("SELECT post_id FROM bookmarks WHERE post_id = ? AND user_id = ?", [post_id, req.session.user.id]);
 
@@ -517,6 +522,7 @@ router.post('/bookmark-post', async (req, res) => {
 
 router.post('/follow-user', loginService.isLoggedIn, async (req, res) => {
     const {user_id} = req.body;
+    if (!user_id) res.json({ "ok": false });
 
     let is_following = false;
     if (req.session.user) {

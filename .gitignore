@@ -1,10 +1,15 @@
+# Gitkeep
+!.gitkeep
+
 # Local setup
 .env
 
 # Node
 node_modules/
 
+# Dist
+apps/shared/dist/*
+
 # CDN images
 apps/shared/public/media/*
 apps/shared/public/profile_images/*
-!.gitkeep

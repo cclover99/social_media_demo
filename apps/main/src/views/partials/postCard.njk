@@ -1,73 +1,40 @@
-<div class="post">
+<div class="post{% if postType == 'detailed' %} detailed-view{% endif %}" post-id="{{ post.post_id }}" post-url="/u/{{ post.author_name }}/post/{{ post.post_id }}">
     <div style="height: auto; overflow: hidden;">
-        <a href="/u/{{ post.author_name }}" style="float: left;">
-            <img class="inline-pfp" src="{{ ( CDN_HOST + '/profile_images/' + post.avatar) if post.avatar else CDN_HOST + '/images/default.jpg' }}">
-            {{ post.author_name }}
-        </a>
+        <a href="/u/{{ post.author_name }}" style="float: left;" draggable="false">
+            <img class="inline-pfp" src="{{ ( CDN_HOST + '/profile_images/' + post.avatar) if post.avatar else CDN_HOST + '/images/default.jpg' }}">{{ post.author_name }}</a
+        >
+            
         <span style="float:right;">
-            <small>{{ post.publish_date.toLocaleString() }}</small>
+            <small>{{ post.publish_date | date }}</small>
         </span>
         <br>
-        {% if user.id == post.author_id %}
-            <button class="deleteButton" type="submit" style="float: right;" onclick="deletePost(this)">Delete Post</button>
+        {% if ( user.id == post.author_id and postType == "detailed" ) %}
+            <button class="deleteButton" type="submit">Delete Post</button>
         {% endif %}
     </div>
-    <span style="cursor: text;">{{ post.content }}</span>
-
+    {% if post.content %}
+        <span style="cursor: text;">{{ post.content }}</span>
+    {% endif %}
+    
+    {% if post.media %}
+        <div id="gallery">
+            {% for image in post.media | json %}
+                <img src="{{ CDN_HOST }}/media/{{ image }}">
+            {% endfor %}
+        </div>
+    {% endif %}
     <div class="action-buttons">
         <!-- Like Button -->
-        <button onclick="likePost(this)"
+        <button data-action="like"
         {% if post.isLiked %} class="isLiked" {% endif %} 
         >Like {{ post.like_count }}</button>
         
         <button>Reply {{ post.comment_count }}</button>
-        <button>Repost</button>
+        <button data-action="repost">Repost</button>
         
         <!-- Bookmark Button -->
-        <button onclick="bookmarkPost(this)" 
+        <button data-action="bookmark"
         {% if post.isBookmarked %} class="isBookmarked" {% endif %} 
         >Bookmark</button>
     </div>
 </div>
-
-<!-- Temp script -->
-<script>
-    async function likePost(button){
-        const result = await jsonQuery('/api/like-post', JSON.stringify({'post_id': '{{ post.post_id }}'}));
-        
-        // If anything were to go wrong with the query then return
-        if (!result?.ok == true){ return };
-
-        button.classList.toggle('isLiked');
-        
-        
-        const count = parseInt(button.innerText.match(/\d+/)?.[0] || "0", 10);
-        
-        let isLiked = !button.classList.contains('isLiked');
-        const newCount = isLiked ? count - 1 : count + 1;
-        button.innerText = `Like ${newCount}`;
-    }
-
-    function replyPost(button){};
-
-    function repostPost(){};
-
-    async function bookmarkPost(button){
-        button.classList.toggle('isBookmarked');
-        const result = await jsonQuery('/api/bookmark-post', JSON.stringify({'post_id': '{{ post.post_id }}'}));
-    }
-
-
-    async function deletePost(button){
-        const result = await jsonQuery('/api/delete-post', JSON.stringify({"post_id": '{{ post.post_id }}'}));
-        if (result?.ok == true){ 
-            if (document.referrer) {
-                // Redirect to the exact previous URL, forcing a fresh load
-                window.location.replace(document.referrer);
-            } else {
-                // Fallback in case there is no referrer history
-                window.history.back();
-            };
-        };  
-    };
-</script>

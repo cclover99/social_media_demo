@@ -12,9 +12,8 @@
 {% block content %}
     {% if post %}
         <div id="posts" class="posts">
-            <div class="postContainer detailed-view" post-id="{{ post.post_id }}">
-                {% include "partials/postCard.njk" %}
-            </div>
+            {% set postType = "detailed" %}
+            {% include "partials/postCard.njk" %}
         </div>
 
         {{ feed.dom("detailed")}}
@@ -30,7 +29,6 @@
 {% block script %}
     
     {{ feed.script({"post_id": post.post_id, "user_id": user.id})}}
-
-    <!-- <script src="{{ CDN_HOST }}/js/postCard.js"></script> -->
+    <script src="{{ CDN_HOST }}/js/postCard.js"></script>
 
 {% endblock %}

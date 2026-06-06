@@ -30,76 +30,43 @@ else {`),this._emit(`cb()`)),this._emitLine(`}`)},n.compileIfAsync=function(e,t)
 })();
 `,t.asFunction&&(n+=`return function(ctx, cb) { return nunjucks.render(`+i+`, ctx, cb); }
 `),n+=`})();
-`}return n}e.exports=r}),(function(e,t,n){function r(){var e=this.runtime,t=this.lib,n=this.compiler.Compiler,r=this.parser.Parser,i=this.nodes,a=this.lexer,o=e.contextOrFrameLookup,s=e.memberLookup,c,l;n&&(c=n.prototype.assertType),r&&(l=r.prototype.parseAggregate);function u(){e.contextOrFrameLookup=o,e.memberLookup=s,n&&(n.prototype.assertType=c),r&&(r.prototype.parseAggregate=l)}e.contextOrFrameLookup=function(e,t,n){var r=o.apply(this,arguments);if(r!==void 0)return r;switch(n){case`True`:return!0;case`False`:return!1;case`None`:return null;default:return}};function d(e){return{index:e.index,lineno:e.lineno,colno:e.colno}}if(i&&n&&r){var f=i.Node.extend(`Slice`,{fields:[`start`,`stop`,`step`],init:function(e,t,n,r,a){n||=new i.Literal(e,t,null),r||=new i.Literal(e,t,null),a||=new i.Literal(e,t,1),this.parent(e,t,n,r,a)}});n.prototype.assertType=function(e){e instanceof f||c.apply(this,arguments)},n.prototype.compileSlice=function(e,t){this._emit(`(`),this._compileExpression(e.start,t),this._emit(`),(`),this._compileExpression(e.stop,t),this._emit(`),(`),this._compileExpression(e.step,t),this._emit(`)`)},r.prototype.parseAggregate=function(){var e=this,n=d(this.tokens);n.colno--,n.index--;try{return l.apply(this)}catch(l){var r=d(this.tokens),o=function(){return t._assign(e.tokens,r),l};t._assign(this.tokens,n),this.peeked=!1;var s=this.peekToken();if(s.type!==a.TOKEN_LEFT_BRACKET)throw o();this.nextToken();for(var c=new f(s.lineno,s.colno),u=!1,p=0;p<=c.fields.length&&!this.skip(a.TOKEN_RIGHT_BRACKET);p++){if(p===c.fields.length)if(u)this.fail(`parseSlice: too many slice components`,s.lineno,s.colno);else break;if(this.skip(a.TOKEN_COLON))u=!0;else{var m=c.fields[p];c[m]=this.parseExpression(),u=this.skip(a.TOKEN_COLON)||u}}if(!u)throw o();return new i.Array(s.lineno,s.colno,[c])}}}function p(t,n,r,i){t||=[],n===null&&(n=i<0?t.length-1:0),r===null?r=i<0?-1:t.length:r<0&&(r+=t.length),n<0&&(n+=t.length);for(var a=[],o=n;!(o<0||o>t.length||i>0&&o>=r||i<0&&o<=r);o+=i)a.push(e.memberLookup(t,o));return a}function m(e,t){return Object.prototype.hasOwnProperty.call(e,t)}var h={pop:function(e){if(e===void 0)return this.pop();if(e>=this.length||e<0)throw Error(`KeyError`);return this.splice(e,1)},append:function(e){return this.push(e)},remove:function(e){for(var t=0;t<this.length;t++)if(this[t]===e)return this.splice(t,1);throw Error(`ValueError`)},count:function(e){for(var t=0,n=0;n<this.length;n++)this[n]===e&&t++;return t},index:function(e){var t;if((t=this.indexOf(e))===-1)throw Error(`ValueError`);return t},find:function(e){return this.indexOf(e)},insert:function(e,t){return this.splice(e,0,t)}},g={items:function(){return t._entries(this)},values:function(){return t._values(this)},keys:function(){return t.keys(this)},get:function(e,t){var n=this[e];return n===void 0&&(n=t),n},has_key:function(e){return m(this,e)},pop:function(e,t){var n=this[e];if(n===void 0&&t!==void 0)n=t;else if(n===void 0)throw Error(`KeyError`);else delete this[e];return n},popitem:function(){var e=t.keys(this);if(!e.length)throw Error(`KeyError`);var n=e[0],r=this[n];return delete this[n],[n,r]},setdefault:function(e,t){return t===void 0&&(t=null),e in this||(this[e]=t),this[e]},update:function(e){return t._assign(this,e),null}};return g.iteritems=g.items,g.itervalues=g.values,g.iterkeys=g.keys,e.memberLookup=function(e,n,r){return arguments.length===4?p.apply(this,arguments):(e||={},t.isArray(e)&&m(h,n)?h[n].bind(e):t.isObject(e)&&m(g,n)?g[n].bind(e):s.apply(this,arguments))},u}e.exports=r})])})}))());c.default.configure({autoescape:!0}),window.nunjucks=c.default,window.postCard=`<div class="post">\r
+`}return n}e.exports=r}),(function(e,t,n){function r(){var e=this.runtime,t=this.lib,n=this.compiler.Compiler,r=this.parser.Parser,i=this.nodes,a=this.lexer,o=e.contextOrFrameLookup,s=e.memberLookup,c,l;n&&(c=n.prototype.assertType),r&&(l=r.prototype.parseAggregate);function u(){e.contextOrFrameLookup=o,e.memberLookup=s,n&&(n.prototype.assertType=c),r&&(r.prototype.parseAggregate=l)}e.contextOrFrameLookup=function(e,t,n){var r=o.apply(this,arguments);if(r!==void 0)return r;switch(n){case`True`:return!0;case`False`:return!1;case`None`:return null;default:return}};function d(e){return{index:e.index,lineno:e.lineno,colno:e.colno}}if(i&&n&&r){var f=i.Node.extend(`Slice`,{fields:[`start`,`stop`,`step`],init:function(e,t,n,r,a){n||=new i.Literal(e,t,null),r||=new i.Literal(e,t,null),a||=new i.Literal(e,t,1),this.parent(e,t,n,r,a)}});n.prototype.assertType=function(e){e instanceof f||c.apply(this,arguments)},n.prototype.compileSlice=function(e,t){this._emit(`(`),this._compileExpression(e.start,t),this._emit(`),(`),this._compileExpression(e.stop,t),this._emit(`),(`),this._compileExpression(e.step,t),this._emit(`)`)},r.prototype.parseAggregate=function(){var e=this,n=d(this.tokens);n.colno--,n.index--;try{return l.apply(this)}catch(l){var r=d(this.tokens),o=function(){return t._assign(e.tokens,r),l};t._assign(this.tokens,n),this.peeked=!1;var s=this.peekToken();if(s.type!==a.TOKEN_LEFT_BRACKET)throw o();this.nextToken();for(var c=new f(s.lineno,s.colno),u=!1,p=0;p<=c.fields.length&&!this.skip(a.TOKEN_RIGHT_BRACKET);p++){if(p===c.fields.length)if(u)this.fail(`parseSlice: too many slice components`,s.lineno,s.colno);else break;if(this.skip(a.TOKEN_COLON))u=!0;else{var m=c.fields[p];c[m]=this.parseExpression(),u=this.skip(a.TOKEN_COLON)||u}}if(!u)throw o();return new i.Array(s.lineno,s.colno,[c])}}}function p(t,n,r,i){t||=[],n===null&&(n=i<0?t.length-1:0),r===null?r=i<0?-1:t.length:r<0&&(r+=t.length),n<0&&(n+=t.length);for(var a=[],o=n;!(o<0||o>t.length||i>0&&o>=r||i<0&&o<=r);o+=i)a.push(e.memberLookup(t,o));return a}function m(e,t){return Object.prototype.hasOwnProperty.call(e,t)}var h={pop:function(e){if(e===void 0)return this.pop();if(e>=this.length||e<0)throw Error(`KeyError`);return this.splice(e,1)},append:function(e){return this.push(e)},remove:function(e){for(var t=0;t<this.length;t++)if(this[t]===e)return this.splice(t,1);throw Error(`ValueError`)},count:function(e){for(var t=0,n=0;n<this.length;n++)this[n]===e&&t++;return t},index:function(e){var t;if((t=this.indexOf(e))===-1)throw Error(`ValueError`);return t},find:function(e){return this.indexOf(e)},insert:function(e,t){return this.splice(e,0,t)}},g={items:function(){return t._entries(this)},values:function(){return t._values(this)},keys:function(){return t.keys(this)},get:function(e,t){var n=this[e];return n===void 0&&(n=t),n},has_key:function(e){return m(this,e)},pop:function(e,t){var n=this[e];if(n===void 0&&t!==void 0)n=t;else if(n===void 0)throw Error(`KeyError`);else delete this[e];return n},popitem:function(){var e=t.keys(this);if(!e.length)throw Error(`KeyError`);var n=e[0],r=this[n];return delete this[n],[n,r]},setdefault:function(e,t){return t===void 0&&(t=null),e in this||(this[e]=t),this[e]},update:function(e){return t._assign(this,e),null}};return g.iteritems=g.items,g.itervalues=g.values,g.iterkeys=g.keys,e.memberLookup=function(e,n,r){return arguments.length===4?p.apply(this,arguments):(e||={},t.isArray(e)&&m(h,n)?h[n].bind(e):t.isObject(e)&&m(g,n)?g[n].bind(e):s.apply(this,arguments))},u}e.exports=r})])})}))()),l=`<div class="post{% if postType == 'detailed' %} detailed-view{% endif %}" post-id="{{ post.post_id }}" post-url="/u/{{ post.author_name }}/post/{{ post.post_id }}">\r
     <div style="height: auto; overflow: hidden;">\r
-        <a href="/u/{{ post.author_name }}" style="float: left;">\r
-            <img class="inline-pfp" src="{{ ( CDN_HOST + '/profile_images/' + post.avatar) if post.avatar else CDN_HOST + '/images/default.jpg' }}">\r
-            {{ post.author_name }}\r
-        </a>\r
+        <a href="/u/{{ post.author_name }}" style="float: left;" draggable="false">\r
+            <img class="inline-pfp" src="{{ ( CDN_HOST + '/profile_images/' + post.avatar) if post.avatar else CDN_HOST + '/images/default.jpg' }}">{{ post.author_name }}</a\r
+        >\r
+            \r
         <span style="float:right;">\r
-            <small>{{ post.publish_date.toLocaleString() }}</small>\r
+            <small>{{ post.publish_date | date }}</small>\r
         </span>\r
         <br>\r
-        {% if user.id == post.author_id %}\r
-            <button class="deleteButton" type="submit" style="float: right;" onclick="deletePost(this)">Delete Post</button>\r
+        {% if ( user.id == post.author_id and postType == "detailed" ) %}\r
+            <button class="deleteButton" type="submit">Delete Post</button>\r
         {% endif %}\r
     </div>\r
-    <span style="cursor: text;">{{ post.content }}</span>\r
-\r
+    {% if post.content %}\r
+        <span style="cursor: text;">{{ post.content }}</span>\r
+    {% endif %}\r
+    \r
+    {% if post.media %}\r
+        <div id="gallery">\r
+            {% for image in post.media | json %}\r
+                <img src="{{ CDN_HOST }}/media/{{ image }}">\r
+            {% endfor %}\r
+        </div>\r
+    {% endif %}\r
     <div class="action-buttons">\r
         <!-- Like Button -->\r
-        <button onclick="likePost(this)"\r
+        <button data-action="like"\r
         {% if post.isLiked %} class="isLiked" {% endif %} \r
         >Like {{ post.like_count }}</button>\r
         \r
         <button>Reply {{ post.comment_count }}</button>\r
-        <button>Repost</button>\r
+        <button data-action="repost">Repost</button>\r
         \r
         <!-- Bookmark Button -->\r
-        <button onclick="bookmarkPost(this)" \r
+        <button data-action="bookmark"\r
         {% if post.isBookmarked %} class="isBookmarked" {% endif %} \r
         >Bookmark</button>\r
     </div>\r
-</div>\r
-\r
-<!-- Temp script -->\r
-<script>\r
-    async function likePost(button){\r
-        const result = await jsonQuery('/api/like-post', JSON.stringify({'post_id': '{{ post.post_id }}'}));\r
-        \r
-        // If anything were to go wrong with the query then return\r
-        if (!result?.ok == true){ return };\r
-\r
-        button.classList.toggle('isLiked');\r
-        \r
-        \r
-        const count = parseInt(button.innerText.match(/\\d+/)?.[0] || "0", 10);\r
-        \r
-        let isLiked = !button.classList.contains('isLiked');\r
-        const newCount = isLiked ? count - 1 : count + 1;\r
-        button.innerText = \`Like \${newCount}\`;\r
-    }\r
-\r
-    function replyPost(button){};\r
-\r
-    function repostPost(){};\r
-\r
-    async function bookmarkPost(button){\r
-        button.classList.toggle('isBookmarked');\r
-        const result = await jsonQuery('/api/bookmark-post', JSON.stringify({'post_id': '{{ post.post_id }}'}));\r
-    }\r
-\r
-\r
-    async function deletePost(button){\r
-        const result = await jsonQuery('/api/delete-post', JSON.stringify({"post_id": '{{ post.post_id }}'}));\r
-        if (result?.ok == true){ \r
-            if (document.referrer) {\r
-                // Redirect to the exact previous URL, forcing a fresh load\r
-                window.location.replace(document.referrer);\r
-            } else {\r
-                // Fallback in case there is no referrer history\r
-                window.history.back();\r
-            };\r
-        };  \r
-    };\r
-<\/script>`;
+</div>`,u=c.default.configure({autoescape:!0});u.addFilter(`json`,e=>JSON.parse(e)),u.addFilter(`date`,e=>new Date(e).toLocaleString()),window.nunjucks=c.default,window.postCard=l;
