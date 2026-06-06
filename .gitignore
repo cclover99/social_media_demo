@@ -1,6 +1,3 @@
-# Gitkeep
-!.gitkeep
-
 # Local setup
 .env
 
@@ -13,3 +10,7 @@ apps/shared/dist/*
 # CDN images
 apps/shared/public/media/*
 apps/shared/public/profile_images/*
+
+
+# Gitkeep
+!.gitkeep
