@@ -140,25 +140,6 @@ hr{
 
 /* Gallery */
 
-/*
-
-.gallery > img:only-of-type{
-    border-radius: 5px;
-}
-
-
-.gallery{
-    transform: none
-}
-
-.gallery img{
-    object-fit: contain;
-    max-width: 100%;
-    max-height: 510px;
-    display: block;
-} */
-
-
 .gallery {
     user-select: none;
     border-radius: 5px;
@@ -184,6 +165,7 @@ hr{
     object-fit: cover;
     max-width: 100%;
 }
+
 
 /* 1 img */
 .gallery[media-count="1"] {
@@ -224,8 +206,6 @@ hr{
 }
 
 /* 4 img */
-
-
 .gallery[media-count="4"] {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;

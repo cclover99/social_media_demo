@@ -1,7 +1,9 @@
-<div class="post{% if postType == 'detailed' %} detailed-view{% endif %}" post-id="{{ post.post_id }}" post-url="/u/{{ post.author_name }}/post/{{ post.post_id }}">
-    <div style="height: auto; overflow: hidden;">
-        <a href="/u/{{ post.author_name }}" style="float: left;" draggable="false">
-            <img class="inline-pfp" src="{{ ( CDN_HOST + '/profile_images/' + post.avatar) if post.avatar else CDN_HOST + '/images/default.jpg' }}">{{ post.author_name }}</a
+<div class="post{% if postType == 'detailed' %} detailed-view{% endif %}" post-id="{{ post.post_id }}" post-url="/u/{{ post.author_username }}/post/{{ post.post_id }}">
+    
+    <div class="post-header" style="height: auto; overflow: hidden;">
+        <a href="/u/{{ post.author_username }}" style="float: left;" draggable="false">
+            <img class="inline-pfp" src="{{ ( CDN_HOST + '/profile_images/' + post.avatar) if post.avatar else CDN_HOST + '/images/default.jpg' }}"
+            ><span>{{ post.author_displayname }}</span></a
         >
             
         <span style="float:right;">

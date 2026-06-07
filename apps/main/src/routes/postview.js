@@ -10,7 +10,7 @@ router.get('/:username/post/:postid', async (req, res) => {
     const { postid } = req.params;
 
     let [data] = (await db.execute(`
-        SELECT p.*, u.username AS author_name, u.profile_pic AS avatar,
+        SELECT p.*, u.username AS author_username, u.display_name AS author_displayname, u.profile_pic AS avatar,
 
         -- Check user interaction
         IF(l.user_id IS NOT NULL, 1, 0) AS isLiked,

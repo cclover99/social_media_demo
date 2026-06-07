@@ -208,7 +208,8 @@ router.post('/get-posts', async (req, res) => {
           p.media,
           p.like_count,
           p.comment_count,
-          u.username, 
+          u.username AS author_username, 
+          u.display_name AS author_displayname,
           u.profile_pic 
     `;
     let filters = [];
