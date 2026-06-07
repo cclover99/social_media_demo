@@ -27,7 +27,7 @@ jobs:
             --exclude='.github/' \
             --exclude='.env' \
             --exclude='node_modules/' \
-            --exclude='apps/shared/dist/*'
+            --exclude='apps/shared/dist/*' \
             --exclude='apps/shared/public/media/*' \
             --exclude='apps/shared/public/profile_images/*' \
             ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/social_media_demo/
