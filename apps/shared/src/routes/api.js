@@ -3,6 +3,9 @@ const router = express.Router();
 
 const bcrypt = require('bcrypt');
 
+const fs = require('fs/promises');
+const fsSync = require('fs');
+
 const db = require('#config/db');
 const dbService = require('#shared/src/services/dbService');
 const mediaService = require('#shared/src/services/mediaService');
@@ -16,6 +19,10 @@ require('dotenv').config();
 router.post('/register', async (req, res) => {
     const { email, username, password } = req.body;
     if (!email || !username || !password) return res.json({ "ok": false });
+
+    if (email.length > 100 || username.length > 20 || password.length > 300) {
+        return res.json({"ok": false});
+    };
     
     let [user_exists] = await db.execute('SELECT user_id FROM users WHERE email = ? OR username = ? OR email = ?', [email, username, email]);
 
@@ -29,7 +36,6 @@ router.post('/register', async (req, res) => {
 
     let [[user]] = await db.execute('SELECT user_id, username, display_name FROM users WHERE email = ? OR username = ? OR email = ?', [email, username, email]);
 
-    console.log(user)
     loginService.login(req, res, user);
 });
 
@@ -115,7 +121,7 @@ router.post('/delete-pfp', loginService.isLoggedIn, async (req, res) => {
 router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     const { about, username, displayname, email } = req.body;
 
-    // If updated info must be unique do checks
+    // Updated info must be unique
     if ( username || email){
         let [subQuery] = await db.execute('SELECT username, email FROM users WHERE username = ? OR email = ?', [username || '', email || '']);
 
@@ -142,23 +148,36 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     let parameters = [];
 
     if (about || about === '') {
+        if (about.length > 500){
+            return res.json({"ok": false});
+        }
         set.push('about = ?');
         parameters.push(about);
     };
 
     if (username) {
+        if (username.length > 20){
+            return res.json({ "ok": false });
+        };
+
         set.push('username = ?');
         parameters.push(username);
         req.session.username = username;
     };
 
     if (displayname) {
+        if (displayname.length > 20){
+            return res.json({ "ok": false });
+        };
+            
         set.push('display_name = ?');
         parameters.push(displayname);
-        req.session.displayname = displayname;
     };
 
     if (email) {
+        if (email.length > 100){
+            return res.json({ "ok": false });
+        };
         set.push('email = ?');
         parameters.push(email);
     };
@@ -170,7 +189,6 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
     query += ' WHERE user_id = ?';
     parameters.push(req.session.user.id);
 
-    
 
     // console.log(query, parameters);
     if ((about || about === '' )|| username || displayname || email){
@@ -345,6 +363,14 @@ router.post('/create-post', loginService.isLoggedIn, mediaService.postUpload.arr
     const {content} = req.body;
 
     if (!content && !req.files) return res.status(401).json({ error: "You can't make an empty post" });
+
+    if (content.length > 500 ){
+        for (const file of req.files){
+        if (fsSync.existsSync(file.path)) 
+            await fs.unlink(file.path);
+        };
+        return res.json({"ok": false});
+    };
     
     const referer = req.get('referer');
     const pathname = new URL(referer || '').pathname;
@@ -530,7 +556,7 @@ router.post('/follow-user', loginService.isLoggedIn, async (req, res) => {
         const [rows] = await db.execute("SELECT 1 FROM follows WHERE follower_id = ? AND following_id = ?", [req.session.user.id, user_id]);
 
         is_following = rows.length > 0;
-    }
+    };
     
 
     if (!is_following){
