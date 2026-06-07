@@ -1,0 +1,36 @@
+name: Deploy to VPS
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/github_social_deploy
+          chmod 600 ~/.ssh/github_social_deploy
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync files with rsync
+        run: |
+          rsync \
+            -e "ssh -i ~/.ssh/github_social_deploy" \
+            -avzr --delete --no-owner --no-group \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.env' \
+            --exclude='node_modules/' \
+            --exclude='apps/shared/dist/*' \
+            --exclude='apps/shared/public/media/*' \
+            --exclude='apps/shared/public/profile_images/*' \
+            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/social_media_demo/
+
+      - name: Restart Docker containers
+        run: |
+          ssh -i ~/.ssh/github_social_deploy ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /var/www/social_media_demo/ && docker compose up -d --build"

@@ -7,11 +7,22 @@ on:
   workflow_dispatch: 
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Log in to Github Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and Push Docker Image
+        run: |
+          # Converts repository owner to strict lowercase for Docker compatibility
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          
+          docker build -t ghcr.io/$OWNER/social_media_demo:latest .
+          docker push ghcr.io/$OWNER/social_media_demo:latest
 
       - name: Install SSH Key
         run: |
@@ -20,20 +31,13 @@ jobs:
           chmod 600 ~/.ssh/github_social_deploy
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Sync files with rsync
+      - name: Deploy via SSH
         run: |
-          rsync \
-            -e "ssh -i ~/.ssh/github_social_deploy" \
-            -avzr --delete \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='.env' \
-            --exclude='node_modules/' \
-            --exclude='apps/shared/dist/*' \
-            --exclude='apps/shared/public/media/*' \
-            --exclude='apps/shared/public/profile_images/*' \
-            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/social_media_demo/
-
-      - name: Restart Docker containers
-        run: |
-          ssh -i ~/.ssh/github_social_deploy ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /var/www/social_media_demo/ && docker compose up -d --build"
+          ssh -i ~/.ssh/github_social_deploy ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << EOF
+            # Log into GitHub Packages using the environment variables passed from the runner
+            echo "$GH_TOKEN" | docker login ghcr.io -u $GH_ACTOR --password-stdin
+            
+            cd /var/www/social_media_demo/
+            docker compose pull
+            docker compose up -d --build
+          EOF

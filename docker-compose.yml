@@ -27,10 +27,12 @@ services:
       DB_HOST: db 
     
     volumes:
-      # Keep these synced
+      #  Previous .env
       - ./.env:/app/.env 
-      - ./shared/cdn/media:/app/cdn/media
-      - ./shared/cdn/profile_images:/app/cdn/profile_images
+
+      # Mounts persistent user uploads from the host disk.
+      - ./apps/shared/public/media:/app/cdn/media
+      - ./apps/shared/public/profile_images:/app/cdn/profile_images
 
 volumes:
   mysql_data:
