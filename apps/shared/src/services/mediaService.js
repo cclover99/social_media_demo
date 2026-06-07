@@ -115,7 +115,7 @@ exports.verifyFileType = (uploadType) => {
             filesToCheck.push(req.file)
         } else if (req.files && Array.isArray(req.files)) {
             filesToCheck = req.files;
-        }
+        };
 
         // Helper function to clean up all files on disk if fail
         const cleanupAllFiles = async () => {
