@@ -6,16 +6,17 @@ window.addEventListener('pointerdown', (event) => {
 });
 
 window.addEventListener('pointerup', async (event) => {
+        
         const button = event.target.closest('[data-action="bookmark"], [data-action="like"], [data-action="repost"], [data-action="none"]');
         const post = event.target.closest('.post');
-        if (!button && !post || ![0, 1].includes(event.button) || post?.classList.contains('detailed-view')) return;
+        if (!button && !post || ![0, 1].includes(event.button) || ( !button && post?.classList.contains('detailed-view') )) return;
         
         if (post && !button){
             // Don't if there's selection
             const sel = window.getSelection();
             const text = sel ? sel.toString().trim() : "";
             const hasSelectionInside = text && sel.rangeCount > 0 && divContainer.contains(sel.anchorNode) && divContainer.contains(sel.focusNode);
-            if (hasSelectionInside) {console.log('selection'); return};
+            if (hasSelectionInside) {return};
             
             if (event.button === 1) { event.preventDefault(); event.stopPropagation(); window.open(post.getAttribute('post-url'), '_blank', 'noopener') }
             else{ window.location.href = post.getAttribute('post-url') };
@@ -25,6 +26,7 @@ window.addEventListener('pointerup', async (event) => {
         const postId = button.closest('.post')?.getAttribute('post-id');
 
         const action = button.dataset.action;
+        
         switch (action) {
             case 'bookmark':
                 button.classList.toggle('isBookmarked');
@@ -62,20 +64,19 @@ window.addEventListener('pointerup', async (event) => {
                 }
                 break;
 
-            case 'none':
+                case 'repost':
+                button.classList.toggle('isReposted');
+                try {
+                    const result = await jsonQuery('/api/repost-post', JSON.stringify({ 'post_id': postId }));
+
+                    if (result.ok != true) button.classList.toggle('isBookmarked');
+                } catch (error) {
+                    button.classList.toggle('isReposted');
+                }
                 break;
-            
 
-            // case 'repost':
-            //     button.classList.toggle('isReposted');
-            //     try {
-            //         const result = await jsonQuery('/api/repost-post', JSON.stringify({ 'post_id': postId }));
-
-            //         if (result.ok != true) button.classList.toggle('isBookmarked');
-            //     } catch (error) {
-            //         button.classList.toggle('isReposted');
-            //     }
-            //     break;
+                case 'none':
+                    break;  
         };
     });
 

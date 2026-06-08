@@ -17,7 +17,6 @@
         <script type="module" src="{{ CDN_HOST }}/dist/nunjucks-bundle.js"></script> 
     {% endif %}
 
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/html/cdn/video.css"> -->
     <link rel="stylesheet" href="{{ CDN_HOST }}/css/video-minimal-skin.css">
 {% endset %}
 
@@ -45,7 +44,7 @@
 {# Shared code #}
 {% macro _script(data = {}) %}
     <script src="{{ CDN_HOST }}/js/video-maker.js"></script>
-   
+        
     <script>
         function createNJKPostCard(data){
             // Conversion, unify backend naming convention instead in the future
@@ -54,6 +53,7 @@
 
             let elem = nunjucks.renderString(postCard, {
                 "post": data,
+                "user": { "id": '{{ data.user_id }}' },
                 "CDN_HOST": '{{ CDN_HOST }}'
             })
             // console.log(elem)

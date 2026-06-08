@@ -18,7 +18,7 @@
 
 {% block script %}
 
-    {{ feed.script() }}
+    {{ feed.script({"user_id": user.id}) }}
     <script src="{{ CDN_HOST }}/js/postCard.js"></script>
 
 {% endblock %}

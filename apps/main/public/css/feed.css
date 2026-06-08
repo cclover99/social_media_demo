@@ -1,15 +1,3 @@
-.inline-pfp{
-    user-select: none;
-    border-radius: 50%;
-    height: 40px;
-    width: 40px;
-    
-    /* border: 1px solid black; */
-    vertical-align: top;
-    margin-right: 15px;
-    object-fit: cover;
-}
-
 #posts{
     /* background-color: #ffffff; */
     border: none !important;
@@ -98,6 +86,43 @@
     border-radius: 5px;
 
     background-color: #ffffff;
+}
+
+.post .post-header > a{
+    float: left;
+    height: auto;
+    display: inline-grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.post .post-header > a span{
+    margin: 0px;
+}
+
+.post .post-header > a *:first-child{
+    min-height: 0;
+    grid-row: 1 / 3; 
+    margin-right: 10px;
+
+}
+
+.post .post-header > a *:not(:first-child) {
+
+}
+
+.post .post-header > a .username{
+    color: gray;
+}
+
+.inline-pfp{
+    user-select: none;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    
+    vertical-align: top;
+    object-fit: cover;
 }
 
 .post:not(.detailed-view):hover{
