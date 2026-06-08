@@ -47,7 +47,7 @@ jobs:
             docker-compose.yml schema.sql \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/social_media_demo/
         
-      - name: Deploy via SSH
+      - name: Deploy Docker container via SSH
         run: |
           ssh -i ~/.ssh/github_social_deploy \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \

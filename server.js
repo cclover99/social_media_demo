@@ -16,6 +16,10 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT
 
+app.use((req, res, next) => {
+    console.log('host:', req.hostname, 'subdomains:', req.subdomains);
+    next();
+});
 
 // Create express apps
 const mainApp = express();
@@ -95,10 +99,13 @@ app.use(session({
 app.get(/^\/index(\.html)?$/, (req, res) => { res.redirect(301, '/') });
 
 
+
 // If in localhost set the subdomain offset
 if (process.env.NODE_ENV === 'development'){
+    console.log('youre in development')
     app.set('subdomain offset', 1);
 }else{
+    console.log('youre in production')
     app.set('subdomain offset', 2);
 }
 
