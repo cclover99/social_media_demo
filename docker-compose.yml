@@ -18,21 +18,22 @@ services:
    
 
   app:
-    build: .
+    image: ghcr.io/ccloverdev/social-media-demo:latest
     ports:
       - "${PORT}:${PORT}"
     depends_on:
       - db
     environment:
       DB_HOST: db 
-    
+    restart: unless-stopped
+  
     volumes:
-      #  Previous .env
+      #  .env
       - ./.env:/app/.env 
 
       # Mounts persistent user uploads from the host disk.
-      - ./apps/shared/public/media:/app/cdn/media
-      - ./apps/shared/public/profile_images:/app/cdn/profile_images
+      - ./apps/media:/app/apps/shared/public/media
+      - ./apps/profile_images:/app/apps/shared/public/profile_images
 
 volumes:
   mysql_data:

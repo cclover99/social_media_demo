@@ -36,6 +36,12 @@ jobs:
           chmod 600 ~/.ssh/github_social_deploy
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Copy relevant files to VPS
+        run: |
+          scp -i ~/.ssh/github_social_deploy \
+            docker-compose.yml schema.sql \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/social_media_demo/docker-compose.yml
+        
       - name: Deploy via SSH
         run: |
           ssh -i ~/.ssh/github_social_deploy -T ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
