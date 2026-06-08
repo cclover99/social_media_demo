@@ -96,9 +96,11 @@ app.get(/^\/index(\.html)?$/, (req, res) => { res.redirect(301, '/') });
 
 
 // If in localhost set the subdomain offset
-if (process.env.NODE_ENV === 'development') 
+if (process.env.NODE_ENV === 'development'){
     app.set('subdomain offset', 1);
-
+}else{
+    app.set('subdomain offset', 2);
+}
 
 // Import routes
 const authRoutes = require('./apps/main/src/routes/auth');

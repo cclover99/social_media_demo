@@ -34,7 +34,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/github_social_deploy
           chmod 600 ~/.ssh/github_social_deploy
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+          # Sometimes ssh-keyscan on github's end fails, try 3 times
+          for i in 1 2 3; do
+            ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts && break
+            sleep 5
+          done
 
       - name: Copy relevant files to VPS
         run: |
