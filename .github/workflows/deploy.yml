@@ -26,8 +26,8 @@ jobs:
           # Converts repository owner to strict lowercase for Docker compatibility
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           
-          docker build -t ghcr.io/$OWNER/social_media_demo:latest .
-          docker push ghcr.io/$OWNER/social_media_demo:latest
+          docker build -t ghcr.io/$OWNER/social-media-demo:latest .
+          docker push ghcr.io/$OWNER/social-media-demo:latest
 
       - name: Install SSH Key
         run: |
@@ -43,13 +43,16 @@ jobs:
             GH_ACTOR="${{ github.actor }}" \
             bash -s << 'EOF'
 
-            # Echo evey command
-            set -x
+            # Echo every command
+            set -ex
+
+            export GH_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+            export GH_ACTOR="${{ github.actor }}"
             
             echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
             
             cd /var/www/social_media_demo/
             
             docker compose pull
-            docker compose up -d --build
+            docker compose up -d
           EOF
