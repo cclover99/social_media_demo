@@ -9,7 +9,9 @@ const fsSync = require('fs');
 const db = require('#config/db');
 const dbService = require('#shared/src/services/dbService');
 const mediaService = require('#shared/src/services/mediaService');
-const loginService = require ('#shared/src/services/loginService')
+const loginService = require ('#shared/src/services/loginService');
+const validityService = require ('#shared/src/services/validityService');
+
 
 require('dotenv').config();
 
@@ -22,6 +24,10 @@ router.post('/register', async (req, res) => {
 
     if (email.length > 100 || username.length > 20 || password.length > 300) {
         return res.json({"ok": false});
+    };
+
+    if (!validityService.isValidEmail(email)){
+        return res.json({ "ok": false });
     };
     
     let [user_exists] = await db.execute('SELECT user_id FROM users WHERE email = ? OR username = ? OR email = ?', [email, username, email]);
@@ -178,6 +184,11 @@ router.post('/update-data', loginService.isLoggedIn, async (req, res) => {
         if (email.length > 100){
             return res.json({ "ok": false });
         };
+
+        if (!validityService.isValidEmail(email)){
+            return res.json({ "ok": false });
+        };
+        
         set.push('email = ?');
         parameters.push(email);
     };
