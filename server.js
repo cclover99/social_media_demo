@@ -39,8 +39,8 @@ const mainEnv = nunjucks.configure(
     express: mainApp
 });
 
-mainEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
-mainEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);
+mainEnv.addGlobal('CDN_HOST', (process.env.NODE_ENV == "development" ) ? `http://cdn.localhost:${PORT}` : process.env.CDN_URL);
+// mainEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);
 mainEnv.addGlobal('NODE_ENV', process.env.NODE_ENV || '');
 mainEnv.addFilter('json', (str) => JSON.parse(str));
 mainEnv.addFilter('date', (str) => new Date(str).toLocaleString())
@@ -56,8 +56,8 @@ const dashboardEnv = nunjucks.configure(
     express: dashboardApp
 });
 
-dashboardEnv.addGlobal('CDN_HOST', `http://cdn.localhost:${PORT}`);
-dashboardEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);   
+dashboardEnv.addGlobal('CDN_HOST', (process.env.NODE_ENV == "development" ) ? `http://cdn.localhost:${PORT}` : process.env.CDN_URL);
+// dashboardEnv.addGlobal('API_HOST', `http://api.localhost:${PORT}`);   
 dashboardEnv.addGlobal('NODE_ENV', process.env.NODE_ENV || '');
 dashboardEnv.addFilter('json', (str) => JSON.parse(str));
 dashboardEnv.addFilter('date', (str) => new Date(str).toLocaleString())
