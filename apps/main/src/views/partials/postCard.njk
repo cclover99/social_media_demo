@@ -27,15 +27,30 @@
     {% endif %}
     <div class="action-buttons">
         <!-- Like Button -->
-        <button data-action="like"
+        <button 
+        {% if user.id %} data-action="like" 
+        {% else %} data-action="none"
+        {% endif %}
         {% if post.isLiked %} class="isLiked" {% endif %} 
         >Like {{ post.like_count }}</button>
         
-        <button>Reply {{ post.comment_count }}</button>
-        <button data-action="repost">Repost</button>
+        <button
+        {% if not user.id %} data-action="none" 
+        {% endif %}
+        >Reply {{ post.comment_count }}
+        </button>
+
+        <button 
+        {% if user.id %} data-action="repost" 
+        {% else %} data-action="none"
+        {% endif %}
+        >Repost</button>
         
         <!-- Bookmark Button -->
-        <button data-action="bookmark"
+        <button 
+        {% if user.id %} data-action="bookmark" 
+        {% else %} data-action="none"
+        {% endif %}
         {% if post.isBookmarked %} class="isBookmarked" {% endif %} 
         >Bookmark</button>
     </div>

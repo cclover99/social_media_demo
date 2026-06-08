@@ -6,7 +6,7 @@ window.addEventListener('pointerdown', (event) => {
 });
 
 window.addEventListener('pointerup', async (event) => {
-        const button = event.target.closest('[data-action="bookmark"], [data-action="like"], [data-action="repost"]');
+        const button = event.target.closest('[data-action="bookmark"], [data-action="like"], [data-action="repost"], [data-action="none"]');
         const post = event.target.closest('.post');
         if (!button && !post || ![0, 1].includes(event.button) || post?.classList.contains('detailed-view')) return;
         
@@ -49,7 +49,7 @@ window.addEventListener('pointerup', async (event) => {
                     const result = await jsonQuery('/api/like-post', JSON.stringify({ 'post_id': postId }));
 
                     if (result.ok != true) {
-                        button.classList.toggle('isBookmarked')
+                        button.classList.toggle('isLiked')
 
                         const count = parseInt(button.innerText.match(/\d+/)?.[0] || "0", 10);
         
@@ -60,6 +60,9 @@ window.addEventListener('pointerup', async (event) => {
                 } catch (error) {
                     button.classList.toggle('isLiked');
                 }
+                break;
+
+            case 'none':
                 break;
             
 
