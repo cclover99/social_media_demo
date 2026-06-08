@@ -40,25 +40,18 @@ jobs:
         run: |
           scp -i ~/.ssh/github_social_deploy \
             docker-compose.yml schema.sql \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/social_media_demo/docker-compose.yml
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/social_media_demo/
         
       - name: Deploy via SSH
         run: |
-          ssh -i ~/.ssh/github_social_deploy -T ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
-            GH_ACTOR="${{ github.actor }}" \
-            bash -s << 'EOF'
-
-            # Echo every command
+          ssh -i ~/.ssh/github_social_deploy \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+            bash << 'EOF'
             set -ex
-
             export GH_TOKEN="${{ secrets.GITHUB_TOKEN }}"
             export GH_ACTOR="${{ github.actor }}"
-            
             echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
-            
             cd /var/www/social_media_demo/
-            
             docker compose pull
             docker compose up -d
           EOF

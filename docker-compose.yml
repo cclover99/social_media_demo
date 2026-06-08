@@ -32,8 +32,8 @@ services:
       - ./.env:/app/.env 
 
       # Mounts persistent user uploads from the host disk.
-      - ./apps/media:/app/apps/shared/public/media
-      - ./apps/profile_images:/app/apps/shared/public/profile_images
+      - ./media:/app/apps/shared/public/media
+      - ./profile_images:/app/apps/shared/public/profile_images
 
 volumes:
   mysql_data:
