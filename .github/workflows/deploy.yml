@@ -38,11 +38,18 @@ jobs:
 
       - name: Deploy via SSH
         run: |
-          ssh -i ~/.ssh/github_social_deploy ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << EOF
-            # Log into GitHub Packages using the environment variables passed from the runner
-            echo "$GH_TOKEN" | docker login ghcr.io -u $GH_ACTOR --password-stdin
+          ssh -i ~/.ssh/github_social_deploy -T ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+            GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            GH_ACTOR="${{ github.actor }}" \
+            bash -s << 'EOF'
             
+            # This handles non-interactive login properly without a TTY device
+            echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
+            
+            # This will now successfully evaluate strictly on your VPS
             cd /var/www/social_media_demo/
+            
+            # Pull down and refresh the containers
             docker compose pull
             docker compose up -d --build
           EOF
