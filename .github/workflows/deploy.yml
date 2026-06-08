@@ -42,14 +42,14 @@ jobs:
             GH_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
             GH_ACTOR="${{ github.actor }}" \
             bash -s << 'EOF'
+
+            # Echo evey command
+            set -x
             
-            # This handles non-interactive login properly without a TTY device
             echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
             
-            # This will now successfully evaluate strictly on your VPS
             cd /var/www/social_media_demo/
             
-            # Pull down and refresh the containers
             docker compose pull
             docker compose up -d --build
           EOF
