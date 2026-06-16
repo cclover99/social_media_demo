@@ -3,7 +3,7 @@
     <div class="post-header" style="height: auto; overflow: hidden;">
         <a href="/u/{{ post.author_username }}" draggable="false">
             <img class="inline-pfp" src="{{ ( CDN_HOST + '/profile_images/' + post.avatar) if post.avatar else CDN_HOST + '/images/default.jpg' }}"
-            ><span>{{ post.author_displayname }}</span
+            ><span class="displayname">{{ post.author_displayname }}</span
             ><span class="username">@{{ post.author_username }}</span
         ></a>
             
