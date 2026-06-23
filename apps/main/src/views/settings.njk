@@ -6,12 +6,13 @@
 
 {% block content %}
     <div id="settings-container">
-        <img style="float: left" class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else CDN_HOST + '/images/default.jpg' }}">
+        <!-- <img style="float: left" class="large_pfp" src="{{ ( CDN_HOST + '/profile_images/' + user.profile_pic) if user.profile_pic else CDN_HOST + '/images/default.jpg' }}"> -->
 
-            
         <!-- {{ profile.about | default('This user has yet to tell about themselves', true) }}  -->
         
-        <table style="float: left;">
+        <h3>Account Details</h3>
+
+        <table>
             <tr>
                 <td>Username </td>
                 <td><input id="username" type="text" autocomplete="off" value="{{ user.username }}"></td>
@@ -30,14 +31,22 @@
             </tr> -->
             
         </table>
-        <br><br>
-        <div style="float: left; margin-top: 20px;">
-            <button id="confirm_button" autocomplete="off">Update Settings</button>
-            <button autocomplete="off" style="margin-left: 10px;" class="button-danger" onclick="jsonQuery('/api/delete-account').then (() => window.location = '/')">Delete Account</button>    
-        </div>
-        <br><br><br><br>
 
-        <p style="margin-top:20px; margin-left: 10px;" id="result"></p>
+        <br>
+
+        <div>
+            <button disabled style="display: block" id="confirm_button" autocomplete="off">Update Settings</button>
+            <p style="margin-top:20px; margin-left: 10px;" id="result"></p>
+        </div>
+
+        
+
+        <hr>
+        <h3>Data Management</h3>
+
+        <button autocomplete="off" class="button-danger" onclick="jsonQuery('/api/delete-account').then (() => window.location = '/')">Delete Account</button>    
+
+        
     </div>
 
     <script>

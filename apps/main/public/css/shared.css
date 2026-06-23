@@ -44,17 +44,22 @@ body > main{
     min-height: calc(100dvh - 85px);
 }
 
+button{
+    border: none;
+    border-radius: 5px;
+    padding: 3px 8px;
+}
+
 button:not([disabled]){
     background-color: #e9e9ed;
     border: none;
-    border-radius: 5px;
+    
     padding: 3px 8px;
     cursor: pointer;
 }
 
 button:disabled{
     color: rgb(82, 82, 82);
-    padding: 1px 6px;
 }
 
 button:not([disabled]):hover{

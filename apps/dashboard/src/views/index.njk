@@ -5,26 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        /* --- Global Table Container (Prevents overflow on small screens) --- */
+        body{
+            font-family: system-ui;
+        }
+        
         .table-container {
             margin-top: 10px;
             width: 100%;
             overflow-x: auto;
             border-radius: 8px;
             border: 1px solid #e5e7eb;
-            background-color: orange;
         }
 
-        /* --- Base Table Styling --- */
+        .logs-container {
+            margin-top: 10px;
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb; 
+        }
+
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            font-family: system-ui;
+            
             text-align: left;
             background-color: #ffffff;
         }
 
-        /* --- Table Header (Thead) --- */
+        
         thead {
             background-color: #f9fafb;
             border-bottom: 2px solid #e5e7eb;
@@ -65,6 +75,11 @@
             border-radius: 50%;
             vertical-align: middle;
         }
+
+        .username{
+            color: black;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -73,9 +88,10 @@
             <thead>
                 
                 <tr>
-                    <th>ID</th>
+                    <!-- <th>ID</th> -->
                     <th>Profile Picture</th>
                     <th>Username</th>
+                    <th>Display Name</th>
                     <th>Email</th>
                     <th>Created At</th>
                 </tr>
@@ -84,10 +100,10 @@
                 {# Loop through each user object in the data array #}
                 {% for userdata in data %}
                     <tr>
-                        <td>{{ userdata.user_id }}</td>
-
+                        <!-- <td>{{ userdata.user_id }}</td> -->
                         <td><img class="pfp" src="{{ ( CDN_HOST + '/profile_images/' + userdata.profile_pic) if userdata.profile_pic else CDN_HOST + '/images/default.jpg' }}"></td>
-                        <td>{{ userdata.username }}</td>
+                        <td><a class="username">@{{ userdata.username }}</a></td>
+                        <td>{{ userdata.display_name }}</td>
                         <td>{{ userdata.email }}</td>
                         <td>{{ userdata.register_date.toLocaleDateString() }}</td>
                         
@@ -102,6 +118,41 @@
         </table>
     </div>
 
+    <!-- <br>
+    Delete Post
+    <input id="post_id_input" placeholder="Post Id"> 
+    <button id="delete_post">✓</button>
+    <br><br>
+
+    Delete User
+    <input id="user_id_input" placeholder="User Id"> 
+    <button id="delete_user">✓</button>
+    <br><br> -->
+    
+    <!-- <div class="logs-container">
+    </div> -->
+
     <script src="{{ CDN_HOST }}/js/shared.js"></script>
+
+    <!-- <script>
+        document.getElementById("delete_post").onclick = async function() {
+            let val = document.getElementById("post_id_input").value
+            if(!val) return;
+
+            console.log(val)
+
+            document.getElementById("post_id_input").value = null
+        }
+
+
+        document.getElementById("delete_user").onclick = async function() {
+            let val = document.getElementById("user_id_input").value
+            if(!val) return;
+
+            console.log(val)
+
+            document.getElementById("user_id_input").value = null
+        }
+    </script> -->
 </body>
 </html>

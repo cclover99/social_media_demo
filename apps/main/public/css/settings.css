@@ -1,7 +1,6 @@
 .large_pfp{
     width: 100px;
     height: 100PX;
-    border: 3px solid rgb(180, 180, 180);
     margin-right: 20px;
     border-radius: 50%;
     object-fit: cover;
@@ -30,4 +29,13 @@ table{
 
 #result.fail{
     color: #df5367;
+}
+
+
+h3:first-of-type{
+    margin-top: 0px;
+}
+
+h3{
+    margin-top: 2rem;
 }
