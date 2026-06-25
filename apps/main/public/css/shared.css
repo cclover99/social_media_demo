@@ -17,10 +17,15 @@ html {
     font-family: 'Montserrat';
 }
 
-
 body{
     margin: 0;
     background-color: #e2e2e2;
+
+    
+}
+
+html{
+    overscroll-behavior: none;
 }
 
 
