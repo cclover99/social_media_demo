@@ -4,7 +4,7 @@
 ![Docker Containers](https://img.shields.io/badge/-Docker_Containers-05122A?style=flat&logo=Docker)&nbsp;
 ![MySQL](https://img.shields.io/badge/-MySQL-05122A?style=flat&logo=MySQL)&nbsp;
 
-<br>
+Demo CRUD app written for practice
 
 ## Installation:  
 
